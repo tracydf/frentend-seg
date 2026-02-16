@@ -1,0 +1,66 @@
+<div class="di-list">
+  <div class="toolbar">
+    <label for="search-di" class="visually-hidden">Recherche</label>
+    <div class="search-field">
+      <i class="icofont icofont-search"></i>
+      <input id="search-di" type="text" placeholder="Rechercher une déclaration..." />
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>No Dossier</th>
+          <th>Type</th>
+          <th>Importateur</th>
+          <th>Exportateur</th>
+          <th>Crée le</th>
+          <th>Modifié le</th>
+          <th>Statut</th>
+          <th>Signature</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of pagedRows">
+          <td>{{ r.dossier }}</td>
+          <td>{{ r.type }}</td>
+          <td>{{ r.importateur }}</td>
+          <td>{{ r.exportateur }}</td>
+          <td>{{ r.creeLe }}</td>
+          <td>{{ r.modifieLe }}</td>
+          <td>
+            <span class="badge"
+                  [class.badge-light-success]="r.statut === 'Ouvert' "
+                  [class.badge-light-warning]="r.statut === 'Elaboré'"
+                  [class.badge-light-danger] ="r.statut === 'Visa refusé'"
+                  [class.badge-light-info] ="r.statut === 'Modification demandée'"
+                  [class.badge-light-primary] ="r.statut === 'Visa demandé'">
+              {{ r.statut }}
+            </span>
+          </td>
+          <td>
+            <div class="sig-progress" [style.--p]="r.signature">
+              <span>{{ r.signature }}%</span>
+            </div>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button type="button" class="btn btn-outline-primary btn-sm">
+                Afficher
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-2 d-flex justify-content-start">
+    <div class="di-pagination">
+      <button type="button" class="page-link" (click)="prev()" [disabled]="page === 1">&lt;</button>
+      <button type="button" class="page-link" *ngFor="let p of pages" [class.active]="p === page" (click)="goTo(p)">{{ p }}</button>
+      <button type="button" class="page-link" (click)="next()" [disabled]="page === totalPages">&gt;</button>
+    </div>
+  </div>
+</div>

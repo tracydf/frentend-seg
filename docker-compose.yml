@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  frontend-seg:
+    image: frontend-seg:latest
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: frontend-seg
+    restart: unless-stopped
+    ports:
+      - "9510:80"  
+    environment:
+      - NODE_ENV=production
+    networks:
+      - frontend-network
+
+networks:
+  frontend-network:
+    driver: bridge

@@ -1,0 +1,591 @@
+:host {
+  position: relative;
+  font-family: var(--bs-body-font-family);
+  display: block;
+  padding: 1rem;
+}
+
+.commandes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Styles pour les cartes */
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 1.25rem;
+    
+    h5 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+/* Styles pour les suggestions d'autocomplétion */
+.suggestions-container {
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-top: 2px;
+
+  .suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover, &.active {
+      background-color: #f8f9fa;
+    }
+  }
+}
+
+/* Styles pour les formulaires */
+.form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+  
+  .control-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+    
+    &.required:after {
+      content: " *";
+      color: #dc3545;
+    }
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    
+    &:focus {
+      color: #495057;
+      background-color: #fff;
+      border-color: #80bdff;
+      outline: 0;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+      &[readonly] {
+      background-color: #e9ecef;
+      opacity: 1;
+    }
+  }
+}
+
+/* Styles pour les champs spécifiques aux modules */
+.module-section {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  border-left: 4px solid #0d6efd;
+  
+  h6 {
+    color: #0d6efd;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+}
+
+/* Style spécifique pour le module Aérien */
+.module-aerien {
+  border-left-color: #0dcaf0;
+  
+  h6 {
+    color: #0dcaf0;
+  }
+}
+
+/* Style spécifique pour le module Maritime */
+.module-maritime {
+  border-left-color: #198754;
+  
+  h6 {
+    color: #198754;
+  }
+}
+
+/* Style spécifique pour le module Fluvial */
+.module-fluvial {
+  border-left-color: #6f42c1;
+  
+  h6 {
+    color: #6f42c1;
+  }
+}
+
+/* Style spécifique pour le module Routier */
+.module-routier {
+  border-left-color: #fd7e14;
+  
+  h6 {
+    color: #fd7e14;
+  }
+}
+
+/* Amélioration de l'accessibilité pour les champs requis */
+.required-asterisk {
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+/* Style pour les messages d'erreur */
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+/* Style pour les champs invalides */
+.is-invalid {
+  border-color: #dc3545;
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Style pour les champs valides */
+.is-valid {
+  border-color: #198754;
+  padding-right: calc(1.5em + 0.75rem);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right calc(0.375em + 0.1875rem) center;
+  background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+/* Style pour les messages d'aide */
+.form-text {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #6c757d;
+}
+
+/* Style pour les groupes de champs */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -5px;
+  margin-left: -5px;
+  
+  > .col,
+  > [class*="col-"] {
+    padding-right: 5px;
+    padding-left: 5px;
+  }
+}
+
+/* Style pour les champs avec icônes */
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+/* Style pour les champs avec boutons intégrés */
+.input-group-append,
+.input-group-prepend {
+  display: flex;
+}
+
+/* Style pour les champs de sélection */
+select.form-control {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  padding-right: 2.25rem;
+}
+
+/* Style pour les champs de type fichier */
+.custom-file-input:focus ~ .custom-file-label {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.custom-file-label::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: block;
+  height: calc(1.5em + 0.75rem);
+  padding: 0.5rem 0.75rem;
+  line-height: 1.5;
+  color: #495057;
+  content: "Parcourir";
+  background-color: #e9ecef;
+  border-left: inherit;
+  border-radius: 0 0.25rem 0.25rem 0;
+}
+
+/* Style pour les champs désactivés */
+.form-control:disabled,
+.form-control[readonly] {
+  background-color: #e9ecef;
+  opacity: 1;
+}
+
+/* Style pour les champs en lecture seule */
+.form-control-plaintext {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0;
+  margin-bottom: 0;
+  line-height: 1.5;
+  color: #212529;
+  background-color: transparent;
+  border: solid transparent;
+  border-width: 1px 0;
+  
+  &.form-control-sm,
+  &.form-control-lg {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+/* Style pour les champs de formulaire groupés */
+.input-group {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  width: 100%;
+  
+  > .form-control,
+  > .form-control-plaintext,
+  > .custom-select,
+  > .custom-file {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  
+  > .form-control:not(:last-child),
+  > .custom-select:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  > .form-control:not(:first-child),
+  > .custom-select:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+/* Style pour les groupes de boutons */
+.btn-group,
+.btn-group-vertical {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+  
+  > .btn {
+    position: relative;
+    flex: 1 1 auto;
+  }
+  
+  > .btn:not(:last-child):not(.dropdown-toggle) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  
+  > .btn:not(:first-child) {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+/* Style pour les boutons de validation */
+.btn-primary {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  
+  &:hover {
+    color: #fff;
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+  }
+  
+  &:focus {
+    color: #fff;
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
+  }
+  
+  &:active,
+  &.active {
+    color: #fff;
+    background-color: #0a58ca;
+    border-color: #0a53be;
+  }
+  
+  &:disabled,
+  &.disabled {
+    color: #fff;
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    opacity: 0.65;
+  }
+}
+
+/* Style pour les boutons secondaires */
+.btn-outline-secondary {
+  color: #6c757d;
+  border-color: #6c757d;
+  
+  &:hover {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.5);
+  }
+  
+  &:active,
+  &.active {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  
+  &:disabled,
+  &.disabled {
+    color: #6c757d;
+    background-color: transparent;
+  }
+}
+
+/* Style pour les boutons de suppression */
+.btn-danger {
+  color: #fff;
+  background-color: #dc3545;
+  border-color: #dc3545;
+  
+  &:hover {
+    color: #fff;
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
+  }
+  
+  &:active,
+  &.active {
+    color: #fff;
+    background-color: #b02a37;
+    border-color: #a52834;
+  }
+  
+  &:disabled,
+  &.disabled {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+    opacity: 0.65;
+  }
+}
+
+/* Style pour les boutons de réinitialisation */
+.btn-outline-danger {
+  color: #dc3545;
+  border-color: #dc3545;
+  
+  &:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.5);
+  }
+  
+  &:active,
+  &.active {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  &:disabled,
+  &.disabled {
+    color: #dc3545;
+    background-color: transparent;
+  }
+}
+
+/* Style pour les boutons de soumission */
+.btn-success {
+  color: #fff;
+  background-color: #198754;
+  border-color: #198754;
+  
+  &:hover {
+    color: #fff;
+    background-color: #157347;
+    border-color: #146c43;
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 0.25rem rgba(60, 153, 110, 0.5);
+  }
+  
+  &:active,
+  &.active {
+    color: #fff;
+    background-color: #146c43;
+    border-color: #13653f;
+  }
+  
+  &:disabled,
+  &.disabled {
+    color: #fff;
+    background-color: #198754;
+    border-color: #198754;
+    opacity: 0.65;
+  }
+}
+
+/* Styles pour les champs de transport conditionnels */
+.transport-field {
+  margin-bottom: 1rem;
+  
+  label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .form-control, .form-select {
+    width: 100%;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    
+    &:focus {
+      border-color: #006666;
+      box-shadow: 0 0 0 0.2rem rgba(0, 102, 102, 0.25);
+    }
+    
+    &.ng-invalid.ng-touched {
+      border-color: #dc3545;
+      
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+    }
+  }
+}
+
+/* Autocomplete dropdown styling (consistent with Step 1) */
+.position-relative {
+  .list-group {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1050; /* above inputs */
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.12);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    border-radius: .5rem;
+    max-height: 260px;
+    overflow: auto;
+  }
+
+  .list-group-item {
+    background-color: #ffffff; /* remove transparency */
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  .list-group-item:hover,
+  .list-group-item:focus {
+    background-color: rgba(0, 102, 102, 0.08); /* light teal hover */
+  }
+}
+
+
+
+.form-label,
+.form-check-label {
+  font-family: var(--bs-body-font-family);
+}
+
+.form-control,
+.form-select,
+textarea {
+  font-family: var(--bs-body-font-family);
+  font-size: inherit; /* aligne la taille avec le contexte si modifiée */
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--bs-body-font-family);
+}
+
+/* Couleur verte sur focus des champs */
+.form-control:focus,
+.form-select:focus,
+textarea:focus {
+  border-color: #006666;
+  box-shadow: 0 0 0 0.2rem rgba(0, 102, 102, 0.25);
+}

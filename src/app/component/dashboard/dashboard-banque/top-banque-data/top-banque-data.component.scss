@@ -1,0 +1,32 @@
+.top-banque {
+  .card {
+    border: 0;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  .details h6 {
+    font-weight: 600;
+  }
+
+  .icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    color: #fff;
+
+    i {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    app-svg-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

@@ -1,0 +1,55 @@
+<form [formGroup]="form" class="g-3">
+  <div class="row g-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label">Type Entité</label>
+      <select class="form-select" formControlName="typeEntite">
+        <option value="" disabled>Sélectionner</option>
+        <option value="DOSSIER">Dossier</option>
+        <option value="TRANSPORT">Transport</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">Entité</label>
+      <input class="form-control" type="text" formControlName="entite" />
+    </div>
+    <div class="col-12 col-md-4">
+      <label class="form-label">Objet</label>
+      <input class="form-control" type="text" formControlName="objet" />
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Description</label>
+      <textarea class="form-control" rows="3" formControlName="description"></textarea>
+    </div>
+
+    <div class="col-12">
+      <label class="form-label">Fichier</label>
+      <div class="uploader"
+           [class.drag-over]="dragOver"
+           (dragover)="onDragOver($event)"
+           (dragleave)="onDragLeave($event)"
+           (drop)="onDrop($event)">
+        <input #fileInput type="file" class="d-none" (change)="onFileSelected($event)" accept=".pdf" />
+        <ng-container *ngIf="!selectedFile; else filePreview">
+          <div class="uploader-inner" (click)="fileInput.click()">
+            <div class="uploader-icon"><i class="icon-cloud-up"></i></div>
+            <div class="uploader-text">
+              Déposez le fichier ici ou cliquez pour téléverser
+            </div>
+            <div class="uploader-hint">Format: PDF</div>
+          </div>
+        </ng-container>
+        <ng-template #filePreview>
+          <div class="file-card">
+            <div class="file-thumb">PDF</div>
+            <div class="file-meta">
+              <div class="file-name" [title]="selectedFile?.name">{{ selectedFile?.name }}</div>
+              <div class="file-size">{{ selectedFileSize }}</div>
+            </div>
+            <button type="button" class="btn btn-sm btn-link text-danger px-2" (click)="removeFile()">Retirer</button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,29 @@
+<nav class="home-nav">
+  <a class="home-nav__brand" routerLink="/">
+    <img class="home-nav__logo" src="assets/images/logo/seg.png" alt="Logo" />
+  </a>
+  <div class="home-nav__spacer"></div>
+  <div class="home-nav__actions"></div>
+</nav>
+
+<section class="hero">
+  <div class="hero__content">
+    <h1>Simplifiez votre procédure d'obtention des documents liées au commerce extérieur</h1>
+    <p>Unifiez déclarations, transports, assurances et facturation dans une interface unique.</p>
+    <div class="hero__actions">
+      <a class="btn btn-primary" routerLink="/auth/login">Commencer maintenant</a>
+      <a class="btn btn-outline" routerLink="/auth/register">S'inscrire</a>
+    </div>
+    <ul class="hero__highlights">
+      <li>Déclarations centralisées</li>
+      <li>Suivi des transports</li>
+      <li>Facturation intégrée</li>
+      <li>Rapports en temps réel</li>
+    </ul>
+  </div>
+  <div class="hero__visual" aria-hidden="true">
+    <div class="mockup-card">
+      <img class="mockup-image" [src]="sliderImages[currentIndex]" alt="Slide" />
+    </div>
+  </div>
+</section>

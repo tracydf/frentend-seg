@@ -1,0 +1,25 @@
+.card {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.table thead th {
+  font-size: 0.875rem;
+}
+
+.table tbody td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+/* Dossier link color behavior */
+.numero-dossier a {
+  color: #111 !important; /* noir par défaut */
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+tbody tr:hover .numero-dossier a {
+  color: var(--bs-success) !important; /* vert au survol de la ligne */
+}

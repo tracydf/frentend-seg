@@ -1,0 +1,33 @@
+<div class="form search-form mb-0" (clickOutside)="clickOutside()">
+    <div class="input-group"><span class="input-icon">
+            <svg>
+                <use href="assets/svg/icon-sprite.svg#search-header"></use>
+            </svg>
+            <input class="w-100" type="search" placeholder="Recherche..." [class.open]="open" [(ngModel)]="text"
+                [ngModelOptions]="{ standalone: true }" (keyup)="searchTerm(text)" type="text" placeholder="Recherche..."
+                name="q" title="" autocomplete="off">
+        </span>
+    </div>
+    @if(menuItems.length){
+    <div class="Typeahead-menu custom-scrollbar" [class.is-open]="searchResult" id="search-outer" [class.open]="open">
+        @for(menuItem of menuItems | slice : 0 : 8; track menuItem){
+        <div class="ProfileCard u-cf">
+            <div class="ProfileCard-details">
+                <div class="ProfileCard-realName">
+                    <div class="ProfileCard-avatar">
+                        <app-svg-icon [icon]="menuItem.icon"></app-svg-icon>
+                    </div>
+                    <a [routerLink]="menuItem.path" class="realname" (click)="removeFix()">{{
+                        menuItem.title }}</a>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+    <div class="Typeahead-menu is-open" [class.is-open]="searchResultEmpty">
+        <div class="tt-dataset tt-dataset-0">
+            <div class="EmptyMessage">Opps!! Aucun résultat trouvé.</div>
+        </div>
+    </div>
+</div>

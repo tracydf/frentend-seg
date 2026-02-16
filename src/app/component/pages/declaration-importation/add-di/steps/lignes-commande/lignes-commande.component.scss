@@ -1,0 +1,165 @@
+// Styles pour le composant des lignes de commande
+.lignes-commande {
+  .header-form {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+
+  .table {
+    --bs-table-bg: #fff;
+    --bs-table-striped-bg: #f8f9fa;
+    --bs-table-hover-bg: #f1f8ff;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+    
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      vertical-align: middle;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      vertical-align: middle;
+      padding: 0.75rem;
+      border-top: 1px solid #dee2e6;
+    }
+
+    .btn-sm {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border-radius: 4px;
+      transition: all 0.2s;
+      margin: 0 2px;
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .table-success {
+    --bs-table-bg: #006666;
+    --bs-table-color: white;
+    
+    th {
+      border-bottom: none;
+      font-weight: 500;
+    }
+  }
+
+  // Style pour les lignes paires/impaires
+  .table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: var(--bs-table-striped-bg);
+    color: var(--bs-table-striped-color);
+  }
+
+  // Style au survol des lignes
+  .table-hover > tbody > tr:hover > * {
+    --bs-table-accent-bg: var(--bs-table-hover-bg);
+    color: var(--bs-table-hover-color);
+  }
+
+  // Bouton d'ajout de ligne
+  .btn-add-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    i {
+      font-size: 1.1em;
+    }
+  }
+}
+
+// Styles pour la modale
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.modal-card {
+  background: #fff;
+  width: min(100%, 960px);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header, .modal-footer {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.modal-header {
+  border-bottom: 1px solid #e9ecef;
+  justify-content: space-between;
+  background-color: #f8f9fa;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.btn-close {
+  background: transparent;
+  border: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.readonly {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+// Styles pour les champs du formulaire
+.form-control, .form-select {
+  &:disabled, &[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+  }
+  
+  &:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+  }
+}
+
+textarea:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}

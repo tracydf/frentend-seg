@@ -1,0 +1,129 @@
+<div class="container-fluid p-0">
+  <div class="row m-0">
+    <div class="col-12 p-0">
+      <div class="card">
+        
+        <div class="card-body">
+            <h2 class="title">Saisie d'une déclaration d'importation</h2>
+            <p class="subtitle">Remplissez tous les champs obligatoires pour passer à l'étape suivante</p>
+
+            <div class="tabs">
+                <div class="tab" [class.active]="step===1" [class.done]="step>1">
+                    <span class="tab-icon"><i class="icofont icofont-file-text"></i></span>
+                    <span class="tab-label">Saisie entête</span>
+                </div>
+                <div class="tab" [class.active]="step===2" [class.done]="step>2">
+                    <span class="tab-icon"><i class="icofont icofont-info-square"></i></span>
+                    <span class="tab-label">Détail entête</span>
+                </div>
+                <div class="tab" [class.active]="step===3" [class.done]="step>3">
+                    <span class="tab-icon"><i class="icofont icofont-cart-alt"></i></span>
+                    <span class="tab-label">Commandes</span>
+                </div>
+                <div class="tab" [class.active]="step===4" [class.done]="step>4">
+                    <span class="tab-icon"><i class="icofont icofont-listing-number"></i></span>
+                    <span class="tab-label">Lignes commandes</span>
+                </div>
+                <div class="tab" [class.active]="step===5" [class.done]="step>5">
+                    <span class="tab-icon"><i class="icofont icofont-folder"></i></span>
+                    <span class="tab-label">Documents</span>
+                </div>
+                <div class="tab" [class.active]="step===6" [class.done]="step>6">
+                    <span class="tab-icon"><i class="icofont icofont-check-circled"></i></span>
+                    <span class="tab-label">Résumé</span>
+                </div>
+            </div>
+
+            <div class="progress">
+                <div class="bar" [style.width]="progress"></div>
+            </div>
+
+            <!-- Step content -->
+            <div class="mt-4">
+              <ng-container [ngSwitch]="step">
+                <!-- Étape 1 : Dossiers -->
+                <app-dossiers 
+                  *ngSwitchCase="1"
+                  (formValidity)="onEtape1ValidityChange($event)">
+                </app-dossiers>
+                
+                <!-- Étape 2 : Résumé -->
+                <app-resume-dossiers 
+                  *ngSwitchCase="2" 
+                  [data]="resumeData">
+                </app-resume-dossiers>
+                
+                <!-- Étape 3 : Commandes -->
+                <app-commandes 
+                  *ngSwitchCase="3"
+                  [formGroup]="etape3Form"
+                  [moduleType]="moduleType">
+                </app-commandes>
+                
+                <!-- Étape 4 : Lignes commandes -->
+                <app-lignes-commande *ngSwitchCase="4"
+                  [devise]="etape3Form.get('devise')?.value"
+                  [noFacture]="etape3Form.get('noFacture')?.value"
+                  [incoterms]="etape3Form.get('incoterms')?.value"
+                  [fretDevise]="etape3Form.get('fretDevise')?.value"
+                  [assuranceDevise]="etape3Form.get('assuranceDevise')?.value"
+                  [autresChargesDevise]="etape3Form.get('autresChargesDevise')?.value"
+                  [paysOrigine]="etape3Form.get('paysOrigine')?.value"
+                  [linesInput]="lignesEtape4"
+                  (linesChange)="lignesEtape4 = $event"
+                ></app-lignes-commande>
+                
+                <!-- Étape 5 : Documents -->
+                <app-documents *ngSwitchCase="5"></app-documents>
+                
+                <!-- Étape 6 : Résumé -->
+                <app-summary 
+                  *ngSwitchCase="6"
+                  [data]="getSummaryData()">
+                </app-summary>
+              </ng-container>
+            </div>
+
+            <!-- Navigation buttons -->
+            <div class="d-flex justify-content-between mt-4">
+              <!-- Step 1 custom buttons -->
+              <ng-container *ngIf="step === 1; else notFirstStep">
+                <a class="btn btn-outline-secondary" [routerLink]="['/pages/importation/declaration-importation']">Annuler</a>
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  [disabled]="!isEtape1Valid"
+                  [class.disabled]="!isEtape1Valid"
+                  (click)="next()">
+                  Enregistrer et continuer
+                </button>
+              </ng-container>
+              <ng-template #notFirstStep>
+                <button type="button" class="btn btn-outline-secondary" (click)="prev()">Précédent</button>
+                <ng-container *ngIf="step === 3; else defaultNextButton">
+                  <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    [disabled]="!isEtape3Valid"
+                    [class.disabled]="!isEtape3Valid"
+                    (click)="next()">
+                    Suivant
+                  </button>
+                </ng-container>
+                <ng-template #defaultNextButton>
+                  <button 
+                    type="button" 
+                    class="btn btn-primary" 
+                    *ngIf="step < totalSteps" 
+                    (click)="next()">
+                    Suivant
+                  </button>
+                </ng-template>
+                <button type="button" class="btn btn-primary" *ngIf="step === totalSteps">Soumettre</button>
+              </ng-template>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

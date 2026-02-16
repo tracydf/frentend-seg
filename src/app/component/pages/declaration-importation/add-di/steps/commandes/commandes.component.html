@@ -1,0 +1,230 @@
+  <form [formGroup]="formGroup" class="g-3">
+  <!-- En-tête de commande -->
+  <div class="mb-4">
+    <h6 class="mb-3">En-tête de la commande</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Dossier</label>
+        <input type="text" class="form-control" formControlName="dossier">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">N° Facture<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="noFacture" required>
+        <div *ngIf="formGroup.get('noFacture')?.invalid && formGroup.get('noFacture')?.touched" class="text-danger">
+          Le numéro de facture est obligatoire
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Intitulé</label>
+        <input type="text" class="form-control" formControlName="intitule">
+      </div>
+    </div>
+  </div>
+
+  <!-- Conditions et valeurs -->
+  <div class="mb-4">
+    <h6 class="mb-3">Conditions et valeurs</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Incoterms<span class="text-danger">*</span></label>
+        <input type="text" 
+               class="form-control" 
+               formControlName="incoterms"
+               (input)="filterIncoterms($event)"
+               (focus)="filterIncoterms($event)"
+               (blur)="hideSuggestionsIncoterms()"
+               required>
+        <div class="suggestions-container" *ngIf="showSuggestionsIncoterms && suggestionsIncoterms.length > 0">
+          <div class="suggestion-item" 
+               *ngFor="let item of suggestionsIncoterms" 
+               (mousedown)="selectIncoterm(item)">
+            <strong>{{item.code}}</strong> - {{item.name}}
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Devise<span class="text-danger">*</span></label>
+        <input type="text" 
+               class="form-control" 
+               formControlName="devise"
+               (input)="filterDevises($event)"
+               (focus)="filterDevises($event)"
+               (blur)="hideDeviseSuggestions()"
+               required>
+        <div class="suggestions-container" *ngIf="showSuggestionsDevise && suggestionsDevise.length > 0">
+          <div class="suggestion-item" 
+               *ngFor="let item of suggestionsDevise" 
+               (mousedown)="selectDevise(item)">
+            {{item.alpha3}} - {{item.currency_name}} ({{item.symbol || ''}})
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Fret (devise)</label>
+        <input type="number" step="0.01" class="form-control" formControlName="fretDevise">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Assurance (devise)</label>
+        <input type="number" step="0.01" class="form-control" formControlName="assuranceDevise">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Autres charges (devise)</label>
+        <input type="number" step="0.01" class="form-control" formControlName="autresChargesDevise">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Échéance transfert</label>
+        <input type="date" class="form-control" formControlName="echeanceTransfert">
+      </div>
+      <div class="col-12">
+        <label class="form-label">Motif de la transaction</label>
+        <textarea class="form-control" formControlName="motifTransaction" rows="2"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Origine et acheminement -->
+  <div class="mb-4">
+    <h6 class="mb-3">Origine et acheminement</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Pays d'origine<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="paysOrigine" required>
+        <div *ngIf="formGroup.get('paysOrigine')?.invalid && formGroup.get('paysOrigine')?.touched" class="text-danger">
+          Le pays d'origine est obligatoire
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Pays d'embarquement<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="paysEmbarquement" required>
+        <div *ngIf="formGroup.get('paysEmbarquement')?.invalid && formGroup.get('paysEmbarquement')?.touched" class="text-danger">
+          Le pays d'embarquement est obligatoire
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Pays de débarquement</label>
+        <input type="text" class="form-control" formControlName="paysDebarquement" readonly>
+      </div>
+    </div>
+    
+    <!-- Champs pour le module Aérien -->
+    <ng-container *ngIf="moduleType === 'AERIEN'">
+      <div class="row mb-3" *ngIf="formGroup.get('aerien')">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Aéroport d'embarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getAeroportEmbarquementControl()">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Aéroport de débarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getAeroportDebarquementControl()">
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Champs pour le module Maritime -->
+    <ng-container *ngIf="moduleType === 'MARITIME'">
+      <div class="row mb-3" *ngIf="formGroup.get('maritime')">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Port d'embarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getPortEmbarquementControl()">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Port de débarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getPortDebarquementControl()">
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Champs pour le module Fluvial -->
+    <ng-container *ngIf="moduleType === 'FLUVIAL'">
+      <div class="row mb-3" *ngIf="formGroup.get('fluvial')">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Fleuve d'embarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getFleuveEmbarquementControl()">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">Fleuve de débarquement <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" 
+                [formControl]="getFleuveDebarquementControl()">
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Champs pour le module Routier -->
+    <div class="row mb-3" *ngIf="moduleType === 'ROUTIER'">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Tronçon <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="troncon">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Corridor <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="corridor">
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Pays de destination</label>
+        <input type="text" class="form-control" formControlName="paysDestination">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Destination finale</label>
+        <input type="text" class="form-control" formControlName="destinationFinale">
+      </div>
+    </div>
+  </div>
+
+  <!-- Paiement et logistique -->
+  <div class="mb-4">
+    <h6 class="mb-3">Paiement et logistique</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Modalité de paiement</label>
+        <select class="form-select" formControlName="modalitePaiement">
+          <option value=""disabled>Sélectionner...</option>
+          <option value="comptant">Comptant</option>
+          <option value="credit">Crédit</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Unité de chargement</label>
+        <input type="text" class="form-control" formControlName="uniteChargement">
+      </div>
+        <div class="col-12 col-md-4">
+        <label class="form-label">Relation fournisseur</label>
+        <input type="text" class="form-control" formControlName="relationFournisseur">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Bureau de dédouanement</label>
+        <input type="text" class="form-control" formControlName="bureauDedouanement">
+      </div>
+    </div>
+  </div>
+
+  <!-- Domiciliation bancaire -->
+  <div class="mb-4">
+    <h6 class="mb-3">Domiciation bancaire</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Banque<span class="text-danger">*</span></label>
+        <select class="form-select" formControlName="banque">
+          <option value=""disabled>Sélectionner...</option>
+          <option *ngFor="let b of banquesList" [value]="b.code">{{ b.name }}</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Agence bancaire</label>
+        <input type="text" class="form-control" formControlName="agenceBancaire">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">N° de compte<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="numeroCompteBancaire">
+      </div>
+    </div>
+  </div>
+
+</form>

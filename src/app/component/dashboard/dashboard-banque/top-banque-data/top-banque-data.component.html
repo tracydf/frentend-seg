@@ -1,0 +1,36 @@
+<div class="row">
+    @for(data of topBanqueData ;track data){
+      <div class="col-xl-3 col-sm-6">
+        <div class="card o-hidden small-widget">
+            <div class="card-body {{ data.class1 }}">
+                <span class="f-light f-w-500 f-14">{{ data.title }}</span>
+                <div class="project-details">
+                    <div class="project-counter">
+                        <h2 class="f-w-600">{{ data.number }}</h2>
+                        <span class="f-12 f-w-400">(Cette année)</span>
+                    </div>
+                    <div class="product-sub bg-{{ data.class2 }}-light">
+                        <svg class="invoice-icon">
+                            <use attr.xlink:href="assets/svg/icon-sprite.svg#{{data.icon}}"></use>
+                        </svg>
+                    </div>
+                </div>
+                <ul class="bubbles">
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                    <li class="bubble"></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+}
+</div>

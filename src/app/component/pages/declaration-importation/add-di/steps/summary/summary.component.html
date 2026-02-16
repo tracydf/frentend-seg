@@ -1,0 +1,214 @@
+<!-- summary.component.html -->
+<form [formGroup]="form" class="g-3">
+  <!-- Bloc Dossier -->
+  <div class="mb-4">
+    <h5 class="mb-3">Dossier</h5>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Type</label>
+        <input type="text" class="form-control" formControlName="type">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Module</label>
+        <input type="text" class="form-control" formControlName="module">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloc Importateur/Exportateur/Transitaire -->
+  <div class="row g-3 mb-4">
+    <!-- Importateur -->
+    <div class="col-12 col-lg-4">
+      <div class="p-2 border rounded-3 h-100">
+        <h6 class="mb-3">Importateur</h6>
+        <label class="form-label">Nom</label>
+        <input type="text" class="form-control mb-2" formControlName="importNom">
+        <label class="form-label">Adresse</label>
+        <input type="text" class="form-control mb-2" formControlName="importAdresse">
+        <label class="form-label">Pays</label>
+        <input type="text" class="form-control mb-2" formControlName="importPays">
+        <label class="form-label">NIU</label>
+        <input type="text" class="form-control" formControlName="importNIU">
+      </div>
+    </div>
+
+    <!-- Exportateur -->
+    <div class="col-12 col-lg-4">
+      <div class="p-2 border rounded-3 h-100">
+        <h6 class="mb-3">Exportateur</h6>
+        <label class="form-label">Nom</label>
+        <input type="text" class="form-control mb-2" formControlName="exportNom">
+        <label class="form-label">Adresse</label>
+        <input type="text" class="form-control mb-2" formControlName="exportAdresse">
+        <label class="form-label">Pays</label>
+        <input type="text" class="form-control mb-2" formControlName="exportPays">
+        <label class="form-label">NIU</label>
+        <input type="text" class="form-control" formControlName="exportNIU">
+      </div>
+    </div>
+
+    <!-- Transitaire -->
+    <div class="col-12 col-lg-4">
+      <div class="p-2 border rounded-3 h-100">
+        <h6 class="mb-3">Transitaire</h6>
+        <label class="form-label">Nom</label>
+        <input type="text" class="form-control mb-2" formControlName="transNom">
+        <label class="form-label">Adresse</label>
+        <input type="text" class="form-control mb-2" formControlName="transAdresse">
+        <label class="form-label">Pays</label>
+        <input type="text" class="form-control mb-2" formControlName="transPays">
+        <label class="form-label">NIU</label>
+        <input type="text" class="form-control" formControlName="transNIU">
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloc Commandes -->
+  <div class="mb-4">
+    <h5 class="mb-3">Détails de la commande</h5>
+    <div class="row g-3">
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">N° Facture</label>
+        <input type="text" class="form-control" formControlName="noFacture">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Intitulé</label>
+        <input type="text" class="form-control" formControlName="intitule">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Incoterms</label>
+        <input type="text" class="form-control" formControlName="incoterms">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Unité de chargement</label>
+        <input type="text" class="form-control" formControlName="uniteChargement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Bureau de dédouanement</label>
+        <input type="text" class="form-control" formControlName="bureauDedouanement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Modalité de paiement</label>
+        <input type="text" class="form-control" formControlName="modalitePaiement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Échéance de paiement</label>
+        <input type="text" class="form-control" formControlName="echeancePaiement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Banque</label>
+        <input type="text" class="form-control" formControlName="banque">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Agence</label>
+        <input type="text" class="form-control" formControlName="agence">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Fret devise</label>
+        <input type="text" class="form-control" formControlName="fretDevise">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Assurance Devise</label>
+        <input type="text" class="form-control" formControlName="assuranceDevise">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Autres charges</label>
+        <input type="text" class="form-control" formControlName="autresCharges">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Numéro compte</label>
+        <input type="text" class="form-control" formControlName="numeroCompte">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Pays d'origine</label>
+        <input type="text" class="form-control" formControlName="paysOrigine">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Pays d'embarquement</label>
+        <input type="text" class="form-control" formControlName="paysEmbarquement">
+      </div>
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label">Pays de débarquement</label>
+        <input type="text" class="form-control" formControlName="paysDebarquement">
+      </div>
+      <!-- Champs conditionnels selon le module -->
+      <ng-container *ngIf="data?.module === 'aérien'">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Aéroport d'embarquement</label>
+          <input type="text" class="form-control" formControlName="aeroportEmbarquement">
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Aéroport de débarquement</label>
+          <input type="text" class="form-control" formControlName="aeroportDebarquement">
+        </div>
+      </ng-container>
+      <ng-container *ngIf="data?.module === 'routier'">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Tronçon</label>
+          <input type="text" class="form-control" formControlName="troncon">
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Corridor</label>
+          <input type="text" class="form-control" formControlName="corridor">
+        </div>
+      </ng-container>
+      <ng-container *ngIf="data?.module === 'maritime'">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Port d'embarquement</label>
+          <input type="text" class="form-control" formControlName="portEmbarquement">
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Port de débarquement</label>
+          <input type="text" class="form-control" formControlName="portDebarquement">
+        </div>
+      </ng-container>
+      <ng-container *ngIf="data?.module === 'fluvial'">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Fleuve d'embarquement</label>
+          <input type="text" class="form-control" formControlName="fleuveEmbarquement">
+        </div>
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Fleuve de débarquement</label>
+          <input type="text" class="form-control" formControlName="fleuveDebarquement">
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- Bloc Lignes de commande -->
+  <div class="mb-4">
+    <h5 class="mb-3">Lignes de commande</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Position Tarifaire</th>
+            <th>Désignation</th>
+            <th>Colisage</th>
+            <th>Quantité</th>
+            <th>Prix U.</th>
+            <th>Masse nette</th>
+            <th>Masse brute</th>
+            <th>Valeur devise</th>
+            <th>Valeur XAF</th>
+            <th>Volume</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ligne of data?.lignesCommande">
+            <td>{{ ligne.positionTarifaire || '-' }}</td>
+            <td>{{ ligne.designation || '-' }}</td>
+            <td>{{ ligne.colisage || '-' }}</td>
+            <td>{{ (ligne.quantite || '0') + ' ' + (ligne.unite || '') }}</td>
+            <td>{{ ligne.prixUnitaire || '0' }}</td>
+            <td>{{ ligne.masseNetteKg || '0' }}</td>
+            <td>{{ ligne.masseBruteKg || '0' }}</td>
+            <td>{{ ligne.valeurDevise || '0' }}</td>
+            <td>{{ ligne.valeurXaf || '0' }}</td>
+            <td>{{ ligne.volumeM3 || '0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

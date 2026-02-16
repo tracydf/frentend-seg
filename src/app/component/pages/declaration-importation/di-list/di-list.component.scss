@@ -1,0 +1,102 @@
+.di-list {
+  .toolbar {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 1rem;
+    background: #ffffff; /* fond blanc derrière le champ */
+    padding: 0.25rem; /* léger padding pour faire ressortir le fond blanc */
+    border-radius: 8px;
+  }
+
+  /* Champ de recherche avec contour vert et icône à gauche */
+  .search-field {
+    position: relative;
+    width: 360px;
+
+    i {
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+      color: #006666; /* icône verte */
+      font-size: 18px;
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      height: 42px;
+      padding: 10px 14px 10px 38px; /* laisser de l'espace pour l'icône */
+      border: 2px solid #006666; /* bordure verte */
+      border-radius: 10px;
+      background: #fff;
+      color: #111827;
+      outline: none;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+      &::placeholder {
+        color: #6b7280;
+      }
+
+      &:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2); /* halo vert au focus */
+      }
+    }
+  }
+  /* Indicateur circulaire de signature (%) */
+  .sig-progress {
+    --size: 44px;
+    --track: #e5f3f1; /* piste claire */
+    --color: #006666; /* vert principal */
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(#fff 60%, transparent 61%),
+      conic-gradient(var(--color) calc(var(--p) * 1%), var(--track) 0);
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Pagination arrondie (modèle fourni) */
+  .di-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #fff; /* gris clair */
+    border-radius: 9999px; /* pilule */
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+
+    .page-link {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #006666; /* vert liens */
+      padding: 6px 10px;
+      line-height: 1;
+      border-radius: 9999px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color .15s ease, color .15s ease;
+
+      &.active {
+        background: #006666; /* vert actif */
+        color: #fff;
+        font-weight: 700;
+      }
+
+      &:disabled {
+        opacity: .5;
+        cursor: default;
+      }
+
+      &:focus { outline: none; }
+    }
+  }
+}

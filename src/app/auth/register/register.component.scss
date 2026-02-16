@@ -1,0 +1,26 @@
+/* S'assurer que les boutons radio s'affichent en natif et restent cliquables, en surchargeant les styles du thème */
+.form-check-input[type='radio'] {
+  -webkit-appearance: radio !important;
+  appearance: radio !important;
+  width: auto !important;
+  height: auto !important;
+  position: static !important;
+  opacity: 1 !important;
+}
+
+.form-check-label {
+  cursor: pointer;
+}
+
+.form-check.form-check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Élargir le conteneur pour la page d'inscription uniquement */
+.login-main {
+  width: 820px;
+  max-width: 95vw;
+}
+

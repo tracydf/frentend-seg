@@ -1,0 +1,55 @@
+<div class="notification-box" (click)="notification()">
+  <svg>
+    <use href="assets/svg/icon-sprite.svg#notification-header"></use>
+  </svg><span class="badge rounded-pill badge-secondary">4 </span>
+</div>
+<div class="onhover-show-div notification-dropdown" [ngClass]="{'active' : notifications == true}">
+  <div class="card mb-0">
+    <div class="card-header">
+      <div class="common-space">
+        <h4 class="text-start f-w-600">Notifications</h4>
+        <div><span>4 Nouveau(x)</span></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="notitications-bar">
+        <ul class="nav nav-pills nav-primary p-0" id="pills-tab" role="tablist">
+          <li class="nav-item p-0">
+            <a class="nav-link active" id="pills-aboutus-tab" [ngClass]="{'active show': openTab == 'all'}"
+              href="javascript:void(0)" role="tab" (click)="tabbed('all')">
+              Tous(3)
+            </a>
+          </li>
+          <li class="nav-item p-0">
+            <a class="nav-link" id="pills-contactus-tab" [ngClass]="{'active show': openTab == 'Messages'}"
+              href="javascript:void(0)" role="tab" (click)="tabbed('Messages')">
+              Messages</a>
+          </li>
+          <li class="nav-item p-0">
+            <a class="nav-link" id="pills-blog-tab" [ngClass]="{'active show': openTab == 'Cart'}"
+              href="javascript:void(0)" role="tab" (click)="tabbed('Cart')">
+              Panier </a>
+          </li>
+        </ul>
+        <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" [ngClass]="{'show active': openTab == 'all'}">
+            <app-all-user></app-all-user>
+          </div>
+          <div class="tab-pane fade" id="pills-contactus" [ngClass]="{'show active': openTab == 'Messages'}">
+            <app-messages></app-messages>
+          </div>
+          <div class="tab-pane fade" id="pills-blog" [ngClass]="{'show active': openTab == 'Cart'}">
+            <app-notification-cart></app-notification-cart>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <div class="text-center">
+        <a class="f-w-700" href="javascript:void(0)">
+          <button class="btn btn-primary" type="button" title="btn btn-primary">Tout voir</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

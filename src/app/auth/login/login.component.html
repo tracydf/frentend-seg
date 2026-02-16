@@ -1,0 +1,66 @@
+<div class="container-fluid p-0">
+    <div class="row m-0">
+        <div class="col-12 p-0">
+            <div class="login-card login-dark">
+                <div>
+                    <!--<div>
+                        <a class="logo" [routerLink]="['/pages/sample-page1']">
+                            <img class="img-fluid for-dark" src="assets/images/logo/logo.png" alt="looginpage">
+                            <img class="img-fluid for-light" src="assets/images/logo/logo_dark.png" alt="looginpage">
+                        </a>
+                    </div>-->
+                    <div class="login-main">
+                        <form class="theme-form" [formGroup]="loginForm">
+                            <h3>Se connecter</h3>
+                            <p>Entrez votre email et mot de passe pour vous connecter</p>
+                            <div class="form-group">
+                                <label class="col-form-label">Email</label>
+                                <input class="form-control" type="email" required="" placeholder="app@yourmail.com"
+                                    formControlName="email">
+                                @if(loginForm.controls['email'].touched &&
+                                loginForm.controls['email'].errors?.['required']){
+                                <div class="text text-danger mt-1"> Email est requis</div>
+                                }
+                                @if(loginForm.controls['email'].touched &&
+                                loginForm.controls['email'].errors?.['email']){
+                                <div class="text text-danger mt-1">Email invalide</div>
+                                }
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">Mot de passe</label>
+                                <div class="form-input position-relative">
+                                    <input class="form-control" [type]="show ? 'text' : 'password'" type="password"
+                                        name="login[password]" required="" placeholder="*********"
+                                        formControlName="password">
+                                    @if(!show){
+                                    <div class="show-hide" (click)="showPassword()"><span class="show"> </span></div>
+                                    }@else{
+                                    <div class="show-hide" (click)="showPassword()"><span class="Hide"></span></div>
+                                    }
+                                    @if(loginForm.controls['password'].touched &&
+                                    loginForm.controls['password'].errors?.['required']){
+                                    <div class="text text-danger mt-1">Mot de passe est requis </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="form-group mb-0">
+                                <div class="checkbox p-0">
+                                    <input id="checkbox1" type="checkbox">
+                                    <label class="text-muted" for="checkbox1">Se souvenir de moi</label>
+                                </div><a class="link" [routerLink]="['/auth/forgot-password']">Mot de passe oublié?</a>
+                                <div class="text-end mt-3">
+                                    <button class="btn btn-primary btn-block w-100" [disabled]="!loginForm.valid"
+                                        (click)="login()" type="submit">Se connecter</button>
+                                </div>
+                            </div>
+                            
+                            <p class="mt-4 mb-0 text-center">N'avez pas de compte?
+                                <a class="ms-2" [routerLink]="['/auth/register']">S'enrôler</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

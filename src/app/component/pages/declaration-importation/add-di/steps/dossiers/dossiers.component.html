@@ -1,0 +1,104 @@
+<form [formGroup]="form" class="g-3">
+  <!-- Bloc 1: Transitaire -->
+  <div class="mb-4">
+    <h6 class="mb-3">Transitaire</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-6 position-relative">
+        <label class="form-label">NIU Transitaire</label>
+        <input type="text" class="form-control" formControlName="niuTransitaire" placeholder="NIU du transitaire" (focus)="showSuggestionsTransitaire = suggestionsTransitaire.length>0" (blur)="hideSuggestionsTransitaire()">
+        <ul class="list-group position-absolute w-100 mt-1 shadow" *ngIf="showSuggestionsTransitaire" style="z-index: 1000;">
+          <li class="list-group-item list-group-item-action" *ngFor="let s of suggestionsTransitaire" (mousedown)="selectTransitaire(s.Nom, s.NIU)">
+            <div class="d-flex justify-content-between">
+              <span>{{ s.Nom }}</span>
+              <span class="text-muted">{{ s.NIU }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Module <span class="text-danger">*</span></label>
+        <select class="form-select" formControlName="module">
+          <option value="" disabled>Sélectionner le module</option>
+          <option *ngFor="let m of modules" [value]="m.code">{{ m.description }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloc 2: Importateur -->
+  <div class="mb-4">
+    <h6 class="mb-3">Importateur</h6>
+    <div class="row g-3">
+      <div class="col-12 position-relative">
+        <label class="form-label">NIU Importateur <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="niuImportateur" placeholder="NIU de l'importateur" (focus)="showSuggestions = suggestions.length>0" (blur)="hideSuggestions()">
+        <ul class="list-group position-absolute w-100 mt-1 shadow" *ngIf="showSuggestions" style="z-index: 1000;">
+          <li class="list-group-item list-group-item-action" *ngFor="let s of suggestions" (mousedown)="selectImportateur(s.Nom, s.NIU)">
+            <div class="d-flex justify-content-between">
+              <span>{{ s.Nom }}</span>
+              <span class="text-muted">{{ s.NIU }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloc 3: Exportateur fournisseur -->
+  <div class="mb-4">
+    <h6 class="mb-3">Exportateur fournisseur</h6>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Exportateur <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="exportateur" placeholder="Nom de l'exportateur">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Coordonnées <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="coordonnees" placeholder="Coordonnées">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label">Adresse</label>
+        <input type="text" class="form-control" formControlName="adresse" placeholder="Adresse">
+      </div>
+      <div class="col-12 col-md-6 position-relative">
+        <label class="form-label">Pays <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="pays" placeholder="Pays ou code" (focus)="showSuggestionsPays = suggestionsPays.length>0" (blur)="hideSuggestionsPays()">
+        <ul class="list-group position-absolute w-100 mt-1 shadow" *ngIf="showSuggestionsPays" style="z-index: 1000;">
+          <li class="list-group-item list-group-item-action" *ngFor="let p of suggestionsPays" (mousedown)="selectPays(p.country, p.code)">
+            <div class="d-flex justify-content-between">
+              <span>{{ p.country }}</span>
+              <span class="text-muted">{{ p.code }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bloc 4: Notifications -->
+  <div class="mb-2">
+    <h6 class="mb-3">Notifications</h6>
+    <div class="row g-3 align-items-center">
+      <div class="col-12 col-md-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" formControlName="notifSMS" id="notifSMS">
+          <label class="form-check-label" for="notifSMS">SMS</label>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" formControlName="notifEmail" id="notifEmail">
+          <label class="form-check-label" for="notifEmail">Email</label>
+        </div>
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label">No Mobile</label>
+        <input type="text" class="form-control" formControlName="mobile" placeholder="Ex: +242...">
+      </div>
+      <div class="col-12 col-md-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="exemple@domaine.com">
+      </div>
+    </div>
+  </div>
+</form>

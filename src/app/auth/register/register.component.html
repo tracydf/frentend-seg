@@ -1,0 +1,315 @@
+<div class="container-fluid p-0">
+  <div class="row m-0">
+    <div class="col-12 p-0">
+      <div class="login-card login-dark">
+        <div>
+          <div>
+            <a class="logo" [routerLink]="['/pages/sample-page1']">
+              <img class="img-fluid for-dark" src="assets/images/logo/logo.png" alt="looginpage">
+              <img class="img-fluid for-light" src="assets/images/logo/logo_dark.png" alt="looginpage">
+            </a>
+          </div>
+          <div class="login-main">
+            <form class="theme-form" [formGroup]="form">
+              <h3>S'enrôler</h3>
+              <p>Créez votre compte en renseignant les informations ci-dessous</p>
+
+              <div class="form-group">
+                <label class="col-form-label d-block">Type de compte</label>
+                <div class="d-flex gap-3 align-items-center">
+                  <div class="checkbox p-0">
+                    <input id="typePhysique" type="checkbox" [checked]="isPhysique" (change)="selectPhysique(($any($event.target)).checked)">
+                    <label class="text-muted" for="typePhysique">Personne physique</label>
+                  </div>
+                  <div class="checkbox p-0">
+                    <input id="typeOrganisme" type="checkbox" [checked]="!isPhysique" (change)="selectOrganisme(($any($event.target)).checked)">
+                    <label class="text-muted" for="typeOrganisme">Organisme</label>
+                  </div>
+                </div>
+              </div>
+
+              @if (isPhysique) {
+              <!-- Personne physique -->
+              <h6 class="mt-3">Informations légales</h6>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Nom</label>
+                    <input class="form-control" type="text" placeholder="Votre nom" formControlName="pf_nom">
+                    @if(form.controls['pf_nom'].touched && form.controls['pf_nom'].errors?.['required']){
+                    <div class="text text-danger mt-1">Nom est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Prénoms</label>
+                    <input class="form-control" type="text" placeholder="Vos prénoms" formControlName="pf_prenoms">
+                    @if(form.controls['pf_prenoms'].touched && form.controls['pf_prenoms'].errors?.['required']){
+                    <div class="text text-danger mt-1">Prénoms est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">NIU</label>
+                    <input class="form-control" type="text" placeholder="Votre NIU" formControlName="pf_niu">
+                    @if(form.controls['pf_niu'].touched && form.controls['pf_niu'].errors?.['required']){
+                    <div class="text text-danger mt-1">NIU est requis</div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <h6 class="mt-3">Coordonnées</h6>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Adresse</label>
+                    <input class="form-control" type="text" placeholder="Adresse" formControlName="pf_adresse">
+                    @if(form.controls['pf_adresse'].touched && form.controls['pf_adresse'].errors?.['required']){
+                    <div class="text text-danger mt-1">Adresse est requise</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Mobile</label>
+                    <input class="form-control" type="text" placeholder="Numéro mobile" formControlName="pf_mobile">
+                    @if(form.controls['pf_mobile'].touched && form.controls['pf_mobile'].errors?.['required']){
+                    <div class="text text-danger mt-1">Mobile est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Email</label>
+                    <input class="form-control" type="email" placeholder="app@yourmail.com" formControlName="email">
+                    @if(form.controls['email'].touched && form.controls['email'].errors?.['required']){
+                    <div class="text text-danger mt-1"> Email est requis</div>
+                    }
+                    @if(form.controls['email'].touched && form.controls['email'].errors?.['email']){
+                    <div class="text text-danger mt-1">Email invalide</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Ville</label>
+                    <input class="form-control" type="text" placeholder="Ville" formControlName="pf_ville">
+                    @if(form.controls['pf_ville'].touched && form.controls['pf_ville'].errors?.['required']){
+                    <div class="text text-danger mt-1">Ville est requise</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Pays</label>
+                    <input class="form-control" type="text" placeholder="Pays" formControlName="pf_pays">
+                    @if(form.controls['pf_pays'].touched && form.controls['pf_pays'].errors?.['required']){
+                    <div class="text text-danger mt-1">Pays est requis</div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <h6 class="mt-3">Pièce d'identité</h6>
+              <div class="d-flex gap-4 align-items-center">
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input me-2" id="pf_piece_cni" type="radio" name="pf_piece" formControlName="pf_piece" [value]="'cni'">
+                  <label class="form-check-label mb-0" for="pf_piece_cni">CNI</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input me-2" id="pf_piece_passeport" type="radio" name="pf_piece" formControlName="pf_piece" [value]="'passeport'">
+                  <label class="form-check-label mb-0" for="pf_piece_passeport">Passeport</label>
+                </div>
+              </div>
+              @if(form.controls['pf_piece'].touched && form.controls['pf_piece'].errors?.['required']){
+              <div class="text text-danger mt-1">Pièce d'identité est requise</div>
+              }
+
+              } @else {
+              <!-- Organisme -->
+              <h6 class="mt-3">Informations légales</h6>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Nom</label>
+                    <input class="form-control" type="text" placeholder="Nom de l'organisme" formControlName="org_nom">
+                    @if(form.controls['org_nom'].touched && form.controls['org_nom'].errors?.['required']){
+                    <div class="text text-danger mt-1">Nom est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Raison sociale</label>
+                    <input class="form-control" type="text" placeholder="Raison sociale" formControlName="org_raison_social">
+                    @if(form.controls['org_raison_social'].touched && form.controls['org_raison_social'].errors?.['required']){
+                    <div class="text text-danger mt-1">Raison sociale est requise</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">NIU</label>
+                    <input class="form-control" type="text" placeholder="NIU" formControlName="org_niu">
+                    @if(form.controls['org_niu'].touched && form.controls['org_niu'].errors?.['required']){
+                    <div class="text text-danger mt-1">NIU est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">N° chargeur</label>
+                    <input class="form-control" type="text" placeholder="Numéro chargeur" formControlName="org_num_chargeur">
+                    @if(form.controls['org_num_chargeur'].touched && form.controls['org_num_chargeur'].errors?.['required']){
+                    <div class="text text-danger mt-1">N° chargeur est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">N° rég. de commerce</label>
+                    <input class="form-control" type="text" placeholder="N° registre commerce" formControlName="org_num_reg_commerce">
+                    @if(form.controls['org_num_reg_commerce'].touched && form.controls['org_num_reg_commerce'].errors?.['required']){
+                    <div class="text text-danger mt-1">N° rég. de commerce est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Activité déclarée</label>
+                    <input class="form-control" type="text" placeholder="Activité" formControlName="org_activite">
+                    @if(form.controls['org_activite'].touched && form.controls['org_activite'].errors?.['required']){
+                    <div class="text text-danger mt-1">Activité est requise</div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <h6 class="mt-3">Coordonnées</h6>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Adresse</label>
+                    <input class="form-control" type="text" placeholder="Adresse" formControlName="org_adresse">
+                    @if(form.controls['org_adresse'].touched && form.controls['org_adresse'].errors?.['required']){
+                    <div class="text text-danger mt-1">Adresse est requise</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Ville</label>
+                    <input class="form-control" type="text" placeholder="Ville" formControlName="org_ville">
+                    @if(form.controls['org_ville'].touched && form.controls['org_ville'].errors?.['required']){
+                    <div class="text text-danger mt-1">Ville est requise</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Pays</label>
+                    <input class="form-control" type="text" placeholder="Pays" formControlName="org_pays">
+                    @if(form.controls['org_pays'].touched && form.controls['org_pays'].errors?.['required']){
+                    <div class="text text-danger mt-1">Pays est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">B.P.</label>
+                    <input class="form-control" type="text" placeholder="Boîte postale" formControlName="org_bp">
+                    @if(form.controls['org_bp'].touched && form.controls['org_bp'].errors?.['required']){
+                    <div class="text text-danger mt-1">B.P. est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Mobile</label>
+                    <input class="form-control" type="text" placeholder="Numéro mobile" formControlName="org_mobile">
+                    @if(form.controls['org_mobile'].touched && form.controls['org_mobile'].errors?.['required']){
+                    <div class="text text-danger mt-1">Mobile est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Tel</label>
+                    <input class="form-control" type="text" placeholder="Téléphone" formControlName="org_tel">
+                    @if(form.controls['org_tel'].touched && form.controls['org_tel'].errors?.['required']){
+                    <div class="text text-danger mt-1">Téléphone est requis</div>
+                    }
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Fax</label>
+                    <input class="form-control" type="text" placeholder="Fax" formControlName="org_fax">
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                  <div class="form-group">
+                    <label class="col-form-label">Email</label>
+                    <input class="form-control" type="email" placeholder="app@yourmail.com" formControlName="email">
+                    @if(form.controls['email'].touched && form.controls['email'].errors?.['required']){
+                    <div class="text text-danger mt-1"> Email est requis</div>
+                    }
+                    @if(form.controls['email'].touched && form.controls['email'].errors?.['email']){
+                    <div class="text text-danger mt-1">Email invalide</div>
+                    }
+                  </div>
+                </div>
+              </div>
+              }
+
+              <h6 class="mt-3">Sécurité</h6>
+              <div class="row g-3">
+                <div class="col-md-6 col-lg-6">
+                  <div class="form-group">
+                    <label class="col-form-label">Mot de passe</label>
+                    <div class="form-input position-relative">
+                      <input class="form-control" type="password" placeholder="*********" formControlName="password">
+                      @if(form.controls['password'].touched && form.controls['password'].errors?.['required']){
+                      <div class="text text-danger mt-1">Mot de passe est requis </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-lg-6">
+                  <div class="form-group">
+                    <label class="col-form-label">Confirmer le mot de passe</label>
+                    <div class="form-input position-relative">
+                      <input class="form-control" type="password" placeholder="*********" formControlName="confirmPassword">
+                      @if(form.controls['confirmPassword'].touched && form.controls['confirmPassword'].errors?.['required']){
+                      <div class="text text-danger mt-1">Confirmation est requise</div>
+                      }
+                      @if(form.value['password'] && form.value['confirmPassword'] && form.value['password'] !== form.value['confirmPassword']){
+                      <div class="text text-danger mt-1">Les mots de passe ne correspondent pas</div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group mb-0">
+                <div class="text-end mt-3">
+                  <button class="btn btn-primary btn-block w-100"
+                          [disabled]="!form.valid || (form.value['password'] !== form.value['confirmPassword'])"
+                          (click)="register()" type="button">Créer le compte</button>
+                </div>
+              </div>
+
+              <p class="mt-4 mb-0 text-center">Déjà un compte?
+                <a class="ms-2" [routerLink]="['/auth/login']">Se connecter</a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

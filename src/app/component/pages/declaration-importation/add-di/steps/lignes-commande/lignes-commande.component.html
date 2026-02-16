@@ -1,0 +1,168 @@
+<div class="lignes-commande">
+  <!-- Entête bloc -->
+  <form [formGroup]="headerForm" class="header-form">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">No Facture</label>
+        <input class="form-control" formControlName="noFacture" [readonly]="true" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Incoterms</label>
+        <input class="form-control" formControlName="incoterms" [readonly]="true" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Devise</label>
+        <input class="form-control" [value]="headerForm.get('devise')?.value" readonly />
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Fret devise</label>
+        <input type="number" class="form-control" formControlName="fretDevise" [readonly]="true" />
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Assurance devise</label>
+        <input type="number" class="form-control" formControlName="assuranceDevise" [readonly]="true" />
+      </div>
+      <div class="col-md-3">    
+        <label class="form-label">Pays origine</label>
+        <input class="form-control" formControlName="paysOrigine" [readonly]="true" />
+      </div>
+    </div>
+  </form>
+
+  <div class="d-flex justify-content-end my-3">
+    <button type="button" class="btn btn-primary" (click)="openAddModal()">Ajouter une ligne</button>
+  </div>
+
+  <!-- Tableau des lignes -->
+  <div *ngIf="lines.length > 0" class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+      <thead class="table-success">
+        <tr>
+          <th>#</th>
+          <th>Position tarifaire</th>
+          <th>Désignation</th>
+          <th>Marque</th>
+          <th>Colisage</th>
+          <th>Pays</th>
+          <th class="text-end">Masse (Kg)</th>
+          <th class="text-end">Masse nette (Kg)</th>
+          <th class="text-end">Volume (m³)</th>
+          <th class="text-center">Qté</th>
+          <th class="text-end">Prix U.</th>
+          <th class="text-end">Valeur {{ headerForm.get('devise')?.value || 'Devise' }}</th>
+          <th class="text-end">Valeur XAF</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let l of lines; let i = index">
+          <td class="fw-semibold">{{ i + 1 }}</td>
+          <td class="font-monospace">{{ l.positionTarifaire }}</td>
+          <td>{{ l.designation }}</td>
+          <td>{{ l.marque || '-' }}</td>
+          <td class="text-center">{{ l.colisage || '-' }}</td>
+          <td class="text-uppercase">{{ l.paysOrigine || '-' }}</td>
+          <td class="text-end">{{ l.masseBruteKg | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.masseNetteKg | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.volumeM3 | number:'1.3-3' }}</td>
+          <td class="text-center">{{ l.quantite | number:'1.0-0' }}</td>
+          <td class="text-end">{{ l.prixUnitaire | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.valeurDevise | number:'1.2-2' }}</td>
+          <td class="text-end">{{ l.valeurXaf | number:'1.2-2' }}</td>
+          <td class="text-center">
+            <div class="d-flex justify-content-center gap-2">
+              <button class="btn btn-sm btn-outline-primary p-1" (click)="openEditModal(i)" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger p-1" (click)="deleteLine(i)" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" *ngIf="showModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter une ligne</h5>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeModal()">Retour</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="lineForm">
+          <div class="row g-3">
+            <div class="col-md-4 position-relative">
+              <label class="form-label">Position tarifaire</label>
+              <input class="form-control" formControlName="positionTarifaire" autocomplete="off"
+                     (input)="filterPositions($any($event.target).value)"
+                     (blur)="hideSuggestionsPosition()" />
+              <div class="list-group position-absolute w-100" *ngIf="showSuggestionsPosition">
+                <button type="button" class="list-group-item list-group-item-action"
+                        *ngFor="let it of suggestionsPosition"
+                        (mousedown)="selectPosition(it)">{{ it.code }} - {{ it.categorie }}</button>
+              </div>
+              <small class="text-danger" *ngIf="isInvalid('positionTarifaire')">Champ requis</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Désignation</label>
+              <input class="form-control" formControlName="designation" />
+              <small class="text-danger" *ngIf="isInvalid('designation')">Champ requis</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Marque</label>
+              <input class="form-control" formControlName="marque" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Colisage</label>
+              <input class="form-control" formControlName="colisage" />
+              <small class="text-danger" *ngIf="isInvalid('colisage')">Champ requis</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Masse brute (Kg)</label>
+              <input type="number" class="form-control" formControlName="masseBruteKg" />
+              <small class="text-danger" *ngIf="isInvalid('masseBruteKg')">Requis et ≥ 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Masse nette (Kg)</label>
+              <input type="number" class="form-control" formControlName="masseNetteKg" />
+              <small class="text-danger" *ngIf="isInvalid('masseNetteKg')">Requis et ≥ 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Volume (m3)</label>
+              <input type="number" class="form-control" formControlName="volumeM3" />
+              <small class="text-danger" *ngIf="isInvalid('volumeM3')">Requis et ≥ 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Quantité</label>
+              <input type="number" class="form-control" formControlName="quantite" />
+              <small class="text-danger" *ngIf="isInvalid('quantite')">Requis et > 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Prix unitaire ({{ headerForm.get('devise')?.value || 'Devise' }})</label>
+              <input type="number" class="form-control" formControlName="prixUnitaire" />
+              <small class="text-danger" *ngIf="isInvalid('prixUnitaire')">Requis et ≥ 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valeur ({{ headerForm.get('devise')?.value || 'Devise' }})</label>
+              <input type="number" class="form-control" formControlName="valeurDevise" (input)="onValeurDeviseChange()" />
+              <small class="text-danger" *ngIf="isInvalid('valeurDevise')">Requis et ≥ 0</small>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Valeur XAF</label>
+              <input type="number" class="form-control" [value]="calculateValeurXAF()" readonly />
+            </div>
+            
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="addAndContinue()">Ajouter</button>
+        <button type="button" class="btn btn-primary" (click)="addAndClose()">Ajouter et retourner</button>
+      </div>
+    </div>
+  </div>
+</div>
