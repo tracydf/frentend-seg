@@ -1,1 +1,434 @@
-.container-fluid { padding: 1rem; }
+// ================================================================
+// assurances.component.scss
+// Pattern : identique à add-di (tabs / tab / tab-icon / progress)
+// Couleur primaire : teal #006666
+// ================================================================
+
+// ---------------------------------------------------------------
+// LISTE
+// ---------------------------------------------------------------
+
+.search-bar {
+  position: relative;
+  max-width: 400px;
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    z-index: 1;
+  }
+
+  .search-input {
+    padding-left: 36px;
+    border-radius: 8px;
+    border: 2px solid #006666;
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.2);
+      border-color: #006666;
+    }
+  }
+}
+
+.table thead th {
+  background: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #f0f0f0;
+  transition: background 0.15s;
+
+  &:hover { background: #f0faf5; }
+}
+
+// ---------------------------------------------------------------
+// BADGES STATUT
+// ---------------------------------------------------------------
+
+.badge-statut {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.statut-elabore          { background: #fff3cd; color: #856404; }
+.statut-visa-demande     { background: #d1ecf1; color: #0c5460; }
+.statut-ouvert           { background: #d4edda; color: #155724; }
+.statut-visa-refuse      { background: #f8d7da; color: #721c24; }
+.statut-modification     { background: #e2d9f3; color: #4a1d96; }
+
+// ---------------------------------------------------------------
+// SIGNATURE CIRCLE (conservé intact)
+// ---------------------------------------------------------------
+
+.signature-circle {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .circle-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+
+  .circle-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #333;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// ---------------------------------------------------------------
+// TITRE & SOUS-TITRE WIZARD  (identiques add-di)
+// ---------------------------------------------------------------
+
+.title {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #006666;
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin: 0 0 20px;
+}
+
+// ---------------------------------------------------------------
+// STEPPER TABS  (identiques add-di — classes tabs / tab / tab-icon)
+// ---------------------------------------------------------------
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #9ca3af;
+  padding: 8px 12px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+
+  .tab-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #e5e7eb;
+    font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .tab-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  &.active {
+    color: #006666;
+    border-bottom-color: #006666;
+
+    .tab-icon {
+      background: #006666;
+      color: #fff;
+    }
+  }
+
+  &.done {
+    color: #6b7280;
+
+    .tab-icon {
+      background: #d1fae5;
+      color: #065f46;
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// BARRE DE PROGRESSION  (identique add-di)
+// ---------------------------------------------------------------
+
+.progress {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 18px;
+
+  .bar {
+    height: 100%;
+    background: #006666;
+    width: 0;
+    transition: width 0.25s ease;
+  }
+}
+
+// ---------------------------------------------------------------
+// BLOCS SECTION FORMULAIRE
+// ---------------------------------------------------------------
+
+.section-bloc {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.bloc-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #006666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #d1fae5;
+}
+
+// ---------------------------------------------------------------
+// CHAMPS FORMULAIRE
+// ---------------------------------------------------------------
+
+.form-label {
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.form-control,
+.form-select {
+  border-radius: 6px;
+  font-size: 0.9rem;
+
+  &:focus {
+    border-color: #006666;
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 102, 0.15);
+  }
+}
+
+.btn-primary {
+  background-color: #006666;
+  border-color: #006666;
+
+  &:hover {
+    background-color: #005555;
+    border-color: #005555;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// ---------------------------------------------------------------
+// RÉSUMÉ (step 6)
+// ---------------------------------------------------------------
+
+.resume-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 18px;
+  height: 100%;
+}
+
+.resume-card-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #006666;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #d1fae5;
+}
+
+.resume-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  align-items: baseline;
+}
+
+.resume-label {
+  font-size: 0.78rem;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.resume-value {
+  font-size: 0.88rem;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+// ---------------------------------------------------------------
+// EN-TÊTE PAGE / BREADCRUMB
+// ---------------------------------------------------------------
+
+.form-page-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.form-page-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.breadcrumb-nav {
+  font-size: 0.82rem;
+  color: #9ca3af;
+
+  .breadcrumb-home {
+    cursor: pointer;
+    &:hover { opacity: 0.7; }
+  }
+
+  .breadcrumb-sep { margin: 0 4px; }
+
+  .breadcrumb-item-inactive {
+    color: #006666;
+    &:hover { text-decoration: underline; }
+  }
+
+  .breadcrumb-item-active {
+    color: #374151;
+    font-weight: 500;
+  }
+}
+
+// ---------------------------------------------------------------
+// VUE DÉTAIL — champs de lecture
+// ---------------------------------------------------------------
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-left: 3px solid #006666;
+  height: 100%;
+
+  .detail-label {
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .detail-value {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #111827;
+  }
+}
+
+// ---------------------------------------------------------------
+// VUE DÉTAIL — en-tête identité
+// ---------------------------------------------------------------
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #f0fdfa 0%, #f9fafb 100%);
+  border: 1px solid #d1fae5;
+  border-radius: 10px;
+  padding: 16px 20px;
+
+  .detail-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-cert-number {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #006666;
+    letter-spacing: 0.5px;
+  }
+
+  .detail-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .detail-meta-sep {
+    color: #d1d5db;
+    font-weight: 300;
+  }
+
+  .detail-meta-item {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// ---------------------------------------------------------------
+// VUE DÉTAIL — sections
+// ---------------------------------------------------------------
+
+.detail-section {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+
+  .detail-section-title {
+    background: #f0fdfa;
+    border-bottom: 1px solid #d1fae5;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #006666;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i { font-size: 1rem; }
+  }
+
+  .row { padding: 12px; }
+}

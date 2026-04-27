@@ -1,0 +1,14 @@
+{
+  "/api": {
+    "target": "http://192.168.2.89:8700",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/assurance": {
+    "target": "http://192.168.2.89:5000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

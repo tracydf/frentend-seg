@@ -1,14 +1,1104 @@
 <div class="container-fluid p-0">
-  <div class="row m-0">
-    <div class="col-12 p-0">
-      <div class="card">
-        <div class="card-header">
-          <h5>Certificat d'origine</h5>
+
+  <!-- ============================================================ -->
+  <!-- SÉLECTEUR DE RÔLE (simulation — à supprimer en production)   -->
+  <!-- ============================================================ -->
+  <div class="role-switcher mb-3">
+    <span class="role-switcher-label">Rôle simulé :</span>
+    <div class="role-switcher-btns">
+      <button *ngFor="let r of roles"
+        class="btn btn-sm"
+        [class.active]="roleActifId === r.id"
+        (click)="roleActifId = r.id">
+        {{ r.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- BANNIÈRES GLOBALES (chargement / erreur / succès API)        -->
+  <!-- ============================================================ -->
+  <div class="alert alert-info d-flex align-items-center gap-2 py-2 mb-3"
+       *ngIf="chargement" style="font-size:0.88rem;">
+    <span class="spinner-border spinner-border-sm"></span>
+    Chargement en cours…
+  </div>
+  <div class="alert alert-danger d-flex align-items-center gap-2 py-2 mb-3"
+       *ngIf="erreurApi" style="font-size:0.88rem;">
+    <i class="icofont icofont-warning me-1"></i>
+    {{ erreurApi }}
+    <button type="button" class="btn-close ms-auto" style="font-size:0.7rem;"
+            (click)="erreurApi = ''"></button>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- VUE LISTE                                                     -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'liste'">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0">Certificats d'origine</h2>
+          <button class="btn btn-success" (click)="ouvrirFormulaire()" *ngIf="roleActifId === 1">
+            + Nouveau certificat
+          </button>
         </div>
-        <div class="card-body">
-          <p>Page du certificat d'origine.</p>
+
+        <div class="search-bar mb-4">
+          <span class="search-icon">&#128269;</span>
+          <input type="text" class="form-control search-input"
+            placeholder="Rechercher un certificat..."
+            [(ngModel)]="searchTerm">
         </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>N° Certificat</th>
+                <th>CCI</th>
+                <th>Destinataire</th>
+                <th>Pays destination</th>
+                <th>Module</th>
+                <th>Formule</th>
+                <th>Créé le</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of certificatsFiltres">
+                <td class="fw-semibold text-success">{{ c.numeroCertificat }}</td>
+                <td>{{ c.chambreCommerce }}</td>
+                <td>{{ c.destinataire }}</td>
+                <td>{{ c.paysDestination }}</td>
+                <td>{{ c.moduleTransport }}</td>
+                <td>{{ c.formule }}</td>
+                <td>{{ c.creeLe }}</td>
+                <td>
+                  <span class="badge-statut" [ngClass]="getStatutClass(c)">
+                    {{ getStatutLabel(c) }}
+                  </span>
+                </td>
+                <td class="d-flex gap-1">
+                  <button class="btn btn-outline-secondary btn-sm" (click)="afficher(c)">
+                    Afficher
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm"
+                          *ngIf="peutModifier(c)"
+                          (click)="modifierCertificat(c)">
+                    Modifier
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="certificatsFiltres.length === 0">
+                <td colspan="9" class="text-center text-muted py-4">Aucun certificat trouvé.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
   </div>
+
+
+  <!-- ============================================================ -->
+  <!-- VUE FORMULAIRE — WIZARD STEPPER                              -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'formulaire'">
+    <div class="card">
+      <div class="card-body">
+
+        <!-- En-tête -->
+        <div class="form-page-header d-flex justify-content-between align-items-center mb-4">
+          <h5 class="form-page-title mb-0">
+            {{ modeEdition ? 'Modifier le certificat' : 'Nouveau certificat d\'origine' }}
+          </h5>
+          <nav class="breadcrumb-nav">
+            <span class="breadcrumb-home" (click)="retourListe()">&#127968;</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-inactive" (click)="retourListe()" style="cursor:pointer">Certificats</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-active">{{ modeEdition ? 'Modifier' : 'Nouveau' }}</span>
+          </nav>
+        </div>
+
+        <!-- ── Stepper header ── -->
+        <div class="stepper-header mb-4">
+          <div class="stepper-track">
+            <ng-container *ngFor="let etape of ETAPES; let i = index">
+              <div class="stepper-step"
+                   [class.active]="etapeActive === i"
+                   [class.done]="etapeActive > i"
+                   [class.valid]="etapeValide(i)"
+                   (click)="allerEtape(i)">
+                <div class="stepper-circle">
+                  <i *ngIf="etapeActive <= i" class="icofont" [class]="etape.icon"></i>
+                  <i *ngIf="etapeActive > i" class="icofont icofont-check"></i>
+                </div>
+                <span class="stepper-label">{{ etape.label }}</span>
+              </div>
+              <div class="stepper-line" *ngIf="i < ETAPES.length - 1"
+                   [class.done]="etapeActive > i"></div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div [formGroup]="form">
+
+          <!-- ════════════════════════════════════════════════════ -->
+          <!-- ÉTAPE 0 — Identification                            -->
+          <!-- ════════════════════════════════════════════════════ -->
+          <div *ngIf="etapeActive === 0">
+            <div class="section-bloc mb-4">
+              <h6 class="bloc-title">Informations principales</h6>
+              <div class="row g-3">
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Chambre de commerce <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="chambreCommerce"
+                    [class.is-invalid]="f['chambreCommerce'].invalid && f['chambreCommerce'].touched"
+                    (change)="onChambreCommerceChange()">
+                    <option value="" disabled>
+                      {{ partenairesApi.length === 0 ? 'Chargement…' : 'Sélectionner une CCI' }}
+                    </option>
+                    <option *ngFor="let p of partenairesApi" [value]="p.id">{{ p.nom }}</option>
+                  </select>
+                  <div class="invalid-feedback">Ce champ est obligatoire.</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Exportateur <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="exportateurId"
+                    [class.is-invalid]="f['exportateurId'].invalid && f['exportateurId'].touched">
+                    <option value="" disabled>
+                      {{ !f['chambreCommerce'].value ? 'Sélectionnez d\'abord une CCI' :
+                         exportateursFiltres.length === 0 ? 'Aucun exportateur disponible' :
+                         'Sélectionner un exportateur' }}
+                    </option>
+                    <option *ngFor="let e of exportateursFiltres" [value]="e.id">
+                      {{ e.raisonSociale || e.nom }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">Ce champ est obligatoire.</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Module de transport <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="moduleTransport"
+                    [class.is-invalid]="f['moduleTransport'].invalid && f['moduleTransport'].touched"
+                    (change)="onModuleTransportChange()">
+                    <option value="" disabled>Sélectionner un module</option>
+                    <option value="MARITIME">Maritime</option>
+                    <option value="AERIEN">Aérien</option>
+                    <option value="TERRESTRE">Terrestre</option>
+                    <option value="FLUVIAL">Fluvial</option>
+                  </select>
+                  <div class="invalid-feedback">Ce champ est obligatoire.</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Formule <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="formule"
+                    [class.is-invalid]="f['formule'].invalid && f['formule'].touched">
+                    <option value="" disabled>Sélectionner une formule</option>
+                    <option *ngFor="let f of formulesDisponibles" [value]="f.value">{{ f.label }}</option>
+                  </select>
+                  <div class="invalid-feedback">Ce champ est obligatoire.</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Type de certificat</label>
+                  <select class="form-select" formControlName="typeCertificat"
+                    (change)="onTypeCertificatChange()">
+                    <option value="">– Sélectionner –</option>
+                    <ng-container *ngIf="typesCertificatsApi.length > 0; else typesLocaux">
+                      <option *ngFor="let t of typesCertificatsApi" [value]="t.id">{{ t.nom }}</option>
+                    </ng-container>
+                    <ng-template #typesLocaux>
+                      <option *ngFor="let t of typesCertificats" [value]="t.value">{{ t.label }}</option>
+                    </ng-template>
+                  </select>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════════════════ -->
+          <!-- ÉTAPE 1 — Transport & Destinataire                  -->
+          <!-- ════════════════════════════════════════════════════ -->
+          <div *ngIf="etapeActive === 1">
+
+            <!-- MARITIME -->
+            <div class="section-bloc mb-4 transport-bloc" *ngIf="moduleActuel === 'MARITIME'">
+              <h6 class="bloc-title"><i class="icofont icofont-ship me-2"></i>Transport Maritime</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6 position-relative">
+                  <label class="form-label">Port d'embarquement</label>
+                  <input type="text" class="form-control" formControlName="portEmbarquement"
+                    placeholder="Port d'embarquement..."
+                    (input)="onPortInput('embarquement', $any($event.target).value)"
+                    (blur)="hidePortSuggestions('embarquement')">
+                  <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                      *ngIf="showPortsEmbarquement">
+                    <li class="list-group-item list-group-item-action"
+                        *ngFor="let p of suggestionsPortEmbarquement"
+                        (mousedown)="selectPort('embarquement', p)">{{ p }}</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-6 position-relative">
+                  <label class="form-label">Port de destination</label>
+                  <input type="text" class="form-control" formControlName="portDestination"
+                    placeholder="Port de destination..."
+                    (input)="onPortInput('destination', $any($event.target).value)"
+                    (blur)="hidePortSuggestions('destination')">
+                  <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                      *ngIf="showPortsDestination">
+                    <li class="list-group-item list-group-item-action"
+                        *ngFor="let p of suggestionsPortDestination"
+                        (mousedown)="selectPort('destination', p)">{{ p }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- AERIEN -->
+            <div class="section-bloc mb-4 transport-bloc" *ngIf="moduleActuel === 'AERIEN'">
+              <h6 class="bloc-title"><i class="icofont icofont-airplane me-2"></i>Transport Aérien</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6 position-relative">
+                  <label class="form-label">Aéroport d'embarquement</label>
+                  <input type="text" class="form-control" formControlName="aeroportEmbarquement"
+                    placeholder="Aéroport d'embarquement..."
+                    (input)="onAeroportInput('embarquement', $any($event.target).value)"
+                    (blur)="hideAeroportSuggestions('embarquement')">
+                  <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                      *ngIf="showAeroportsEmbarquement">
+                    <li class="list-group-item list-group-item-action"
+                        *ngFor="let a of suggestionsAeroportEmbarquement"
+                        (mousedown)="selectAeroport('embarquement', a)">{{ a }}</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-6 position-relative">
+                  <label class="form-label">Aéroport de destination</label>
+                  <input type="text" class="form-control" formControlName="aeroportDestination"
+                    placeholder="Aéroport de destination..."
+                    (input)="onAeroportInput('destination', $any($event.target).value)"
+                    (blur)="hideAeroportSuggestions('destination')">
+                  <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                      *ngIf="showAeroportsDestination">
+                    <li class="list-group-item list-group-item-action"
+                        *ngFor="let a of suggestionsAeroportDestination"
+                        (mousedown)="selectAeroport('destination', a)">{{ a }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- TERRESTRE -->
+            <div class="section-bloc mb-4 transport-bloc" *ngIf="moduleActuel === 'TERRESTRE'">
+              <h6 class="bloc-title"><i class="icofont icofont-truck me-2"></i>Transport Terrestre</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Tronçon</label>
+                  <select class="form-select" formControlName="troncon">
+                    <option value="">– Sélectionner –</option>
+                    <option *ngFor="let t of troncons" [value]="t">{{ t }}</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Route d'embarquement</label>
+                  <select class="form-select" formControlName="routeEmbarquement">
+                    <option value="">– Sélectionner –</option>
+                    <option *ngFor="let r of routesEmbarquement" [value]="r">{{ r }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- FLUVIAL -->
+            <div class="section-bloc mb-4 transport-bloc" *ngIf="moduleActuel === 'FLUVIAL'">
+              <h6 class="bloc-title"><i class="icofont icofont-water me-2"></i>Transport Fluvial</h6>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Fleuve d'embarquement</label>
+                  <select class="form-select" formControlName="fleuveEmbarquement">
+                    <option value="">– Sélectionner –</option>
+                    <option *ngFor="let f of fleuvesEmbarquement" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Fleuve de destination</label>
+                  <select class="form-select" formControlName="fleuveDestination">
+                    <option value="">– Sélectionner –</option>
+                    <option *ngFor="let f of fleuvesDestination" [value]="f">{{ f }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Destinataire -->
+            <div class="section-bloc mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="bloc-title mb-0">Destinataire & Pays</h6>
+                <button type="button" class="btn btn-sm btn-outline-success"
+                  (click)="ouvrirModalDestinataire()">+ Destinataire</button>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Destinataire <span class="text-danger">*</span></label>
+                  <select class="form-select" formControlName="destinataire"
+                    [class.is-invalid]="f['destinataire'].invalid && f['destinataire'].touched"
+                    (change)="onDestinataireChange($any($event.target).value)">
+                    <option value="" disabled>
+                      {{ destinataires.length === 0 ? 'Aucun Destinataire encore ajouté' : 'Sélectionner un destinataire' }}
+                    </option>
+                    <option *ngFor="let d of destinataires" [value]="d.nom">{{ d.nom }}</option>
+                  </select>
+                  <div class="invalid-feedback">Ce champ est obligatoire.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ════════════════════════════════════════════════════ -->
+          <!-- ÉTAPE 2 — Lignes de produits (supprimée du stepper) -->
+          <!-- ÉTAPE 3 — Documents (supprimée du stepper)          -->
+          <!-- ÉTAPE 4 — Récapitulatif (supprimé du stepper)       -->
+          <!-- Ces sections sont maintenant dans la vue Détail     -->
+          <!-- ════════════════════════════════════════════════════ -->
+
+        </div><!-- /formGroup -->
+
+        <!-- ── Navigation stepper ── -->
+        <div class="stepper-nav d-flex justify-content-between align-items-center mt-4">
+          <button type="button" class="btn btn-outline-secondary"
+                  (click)="etapeActive === 0 ? retourListe() : etapePrecedente()">
+            &#8592; {{ etapeActive === 0 ? 'Annuler' : 'Précédent' }}
+          </button>
+
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-success px-4"
+                    *ngIf="etapeActive < ETAPES.length - 1"
+                    (click)="etapeSuivante()">
+              Suivant &#8594;
+            </button>
+            <button type="button" class="btn btn-success px-4"
+                    *ngIf="etapeActive === ETAPES.length - 1"
+                    (click)="sauvegarderBrouillon()"
+                    [disabled]="f['chambreCommerce'].invalid || f['exportateurId'].invalid || f['moduleTransport'].invalid || f['formule'].invalid || f['typeCertificat'].invalid">
+              <i class="icofont icofont-save me-1"></i>
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- VUE DÉTAIL                                                    -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'detail' && certificatSelectionne">
+    <div class="row g-3">
+
+      <!-- Colonne principale -->
+      <div class="col-12 col-lg-8">
+        <div class="card h-100">
+          <div class="card-body">
+
+            <!-- Breadcrumb -->
+            <div class="form-page-header d-flex justify-content-between align-items-center mb-3">
+              <h5 class="form-page-title mb-0">Contenu du Certificat d'Origine</h5>
+              <nav class="breadcrumb-nav">
+                <span class="breadcrumb-home" (click)="retourListe()">&#127968;</span>
+                <span class="breadcrumb-sep"> / </span>
+                <span class="breadcrumb-item-inactive" (click)="retourListe()" style="cursor:pointer">Certificats</span>
+                <span class="breadcrumb-sep"> / </span>
+                <span class="breadcrumb-item-active">{{ certificatSelectionne.numeroCertificat }}</span>
+              </nav>
+            </div>
+
+            <!-- Statut + boutons actions -->
+            <div class="detail-actions-bar mb-4">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge-statut badge-statut-lg"
+                      [ngClass]="getStatutClass(certificatSelectionne)">
+                  {{ getStatutLabel(certificatSelectionne) }}
+                </span>
+                <span *ngIf="certificatSelectionne.isFormuleA"
+                      class="badge-formule-a">Formule A</span>
+
+                <!-- Bouton Modifier (statut Élaboré ou Rejeté) -->
+                <button class="btn btn-outline-primary btn-sm"
+                        *ngIf="peutModifier(certificatSelectionne)"
+                        (click)="modifierCertificat(certificatSelectionne)">
+                  <i class="icofont icofont-edit me-1"></i> Modifier
+                </button>
+
+                <!-- Bouton Soumettre (statut Élaboré uniquement) -->
+                <button class="btn btn-success btn-sm"
+                        *ngIf="peutSoumettre"
+                        (click)="soumettreDepuisDetail()">
+                  <i class="icofont icofont-paper-plane me-1"></i> Soumettre
+                </button>
+              </div>
+
+              <!-- Alerte succès soumission -->
+              <div class="alert alert-success mt-2 py-2 d-flex align-items-center gap-2"
+                   *ngIf="showSuccesSoumission" style="font-size:0.88rem;">
+                <i class="icofont icofont-check-circled"></i>
+                Certificat soumis avec succès. Statut : <strong>Soumis</strong>
+              </div>
+
+              <div class="d-flex gap-2 flex-wrap mt-2" *ngIf="peutGenererPDF(certificatSelectionne)">
+                <button class="btn btn-sm btn-outline-success" (click)="genererPDF('CO')">
+                  <i class="icofont icofont-file-pdf me-1"></i> CO Standard
+                </button>
+                <button class="btn btn-sm btn-outline-success"
+                        *ngIf="certificatSelectionne.formule === 'CO+ALC'"
+                        (click)="genererPDF('ALC')">
+                  <i class="icofont icofont-file-pdf me-1"></i> ALC
+                </button>
+                <button class="btn btn-sm btn-outline-success"
+                        *ngIf="certificatSelectionne.formule === 'EUR1'"
+                        (click)="genererPDF('EUR1')">
+                  <i class="icofont icofont-file-pdf me-1"></i> EUR-1
+                </button>
+                <button class="btn btn-sm btn-outline-success"
+                        *ngIf="certificatSelectionne.isFormuleA && certificatSelectionne.statutFormuleA === 15"
+                        (click)="genererPDF('FormuleA')">
+                  <i class="icofont icofont-file-pdf me-1"></i> Formule A
+                </button>
+              </div>
+            </div>
+
+            <!-- Informations principales -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">N° Certificat</div>
+                  <div class="detail-info-value text-success">{{ certificatSelectionne.numeroCertificat }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Chambre de commerce</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.chambreCommerce }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Formule / Type</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.formule }} — {{ certificatSelectionne.typeCertificat === '1' ? 'Bois' : 'Hydrocarbures' }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Destinataire</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.destinataire }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Pays de destination</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.paysDestination }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Pays d'origine</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.paysOrigine }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Zone de production</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.zoneCoupe || '—' }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Module transport</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.moduleTransport }}</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4" *ngIf="certificatSelectionne.navire">
+                <div class="detail-info-card">
+                  <div class="detail-info-label">Navire / Pavillon</div>
+                  <div class="detail-info-value">{{ certificatSelectionne.navire }} — {{ certificatSelectionne.pavillon }}</div>
+                </div>
+              </div>
+
+              <!-- Transport dynamique -->
+              <ng-container *ngIf="certificatSelectionne.moduleTransport === 'MARITIME'">
+                <div class="col-12 col-md-6">
+                  <div class="detail-info-card">
+                    <div class="detail-info-label">Port d'embarquement</div>
+                    <div class="detail-info-value">{{ certificatSelectionne.portEmbarquement || '—' }}</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="detail-info-card">
+                    <div class="detail-info-label">Port de destination</div>
+                    <div class="detail-info-value">{{ certificatSelectionne.portDestination || '—' }}</div>
+                  </div>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="certificatSelectionne.moduleTransport === 'AERIEN'">
+                <div class="col-12 col-md-6">
+                  <div class="detail-info-card">
+                    <div class="detail-info-label">Aéroport d'embarquement</div>
+                    <div class="detail-info-value">{{ certificatSelectionne.aeroportEmbarquement || '—' }}</div>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="detail-info-card">
+                    <div class="detail-info-label">Aéroport de destination</div>
+                    <div class="detail-info-value">{{ certificatSelectionne.aeroportDestination || '—' }}</div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <!-- ── Formulaire ajout ligne (visible si Élaboré) ── -->
+            <div class="section-bloc mb-4" *ngIf="peutModifier(certificatSelectionne)">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="bloc-title mb-0">
+                  Lignes de produits
+                  <span class="badge-type ms-2"
+                    [class.badge-bois]="certificatSelectionne.typeCertificat === '1'"
+                    [class.badge-hydro]="certificatSelectionne.typeCertificat === '2'">
+                    {{ certificatSelectionne.typeCertificat === '1' ? 'Bois' : 'Hydrocarbures' }}
+                  </span>
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-success"
+                        (click)="ouvrirFormLigne()">
+                  + Ajouter une ligne
+                </button>
+              </div>
+
+              <div class="alert alert-success py-2 px-3 mb-3 d-flex align-items-center gap-2"
+                   *ngIf="showSuccesLigne" style="font-size:0.88rem;">
+                <i class="icofont icofont-check-circled"></i> Ligne ajoutée avec succès.
+              </div>
+
+              <!-- Formulaire ligne inline -->
+              <div class="ligne-form-card mb-3" *ngIf="afficherFormLigne" [formGroup]="formLigne">
+                <div class="ligne-form-header d-flex align-items-center justify-content-between mb-3">
+                  <span class="ligne-numero">
+                    {{ indexLigneEdition !== null ? 'Modifier la ligne ' + (indexLigneEdition + 1) : 'Nouvelle ligne' }}
+                    <span class="badge-type ms-2"
+                      [class.badge-bois]="typeLigneActive === 'BOIS'"
+                      [class.badge-hydro]="typeLigneActive === 'HYDRO'">
+                      {{ typeLigneActive === 'BOIS' ? 'Bois' : 'Hydrocarbures' }}
+                    </span>
+                  </span>
+                  <button type="button" class="btn btn-link btn-sm text-secondary p-0"
+                          (click)="annulerFormLigne()">&#10005; Fermer</button>
+                </div>
+                <div class="row g-2">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label form-label-sm">Produit <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-sm" formControlName="produit"
+                      [class.is-invalid]="formLigne.get('produit')?.invalid && formLigne.get('produit')?.touched"
+                      (change)="onProduitChange($any($event.target).value)">
+                      <option value="" disabled>Sélectionner un produit</option>
+                      <option *ngFor="let p of produitsRef" [value]="p.code">{{ p.code }} – {{ p.libelle }}</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatoire.</div>
+                  </div>
+                  <div class="col-12 col-md-8">
+                    <label class="form-label form-label-sm">Description</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="description"
+                      placeholder="Description du produit">
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <label class="form-label form-label-sm">Quantité <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control form-control-sm" formControlName="quantite"
+                      placeholder="0" min="0.001"
+                      [class.is-invalid]="formLigne.get('quantite')?.invalid && formLigne.get('quantite')?.touched">
+                    <div class="invalid-feedback">Obligatoire.</div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <label class="form-label form-label-sm">Unité stat. <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-sm" formControlName="uniteStatistique"
+                      [class.is-invalid]="formLigne.get('uniteStatistique')?.invalid && formLigne.get('uniteStatistique')?.touched">
+                      <option value="" disabled>–</option>
+                      <option *ngFor="let u of unitesStatistiques" [value]="u">{{ u }}</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatoire.</div>
+                  </div>
+                  <ng-container *ngIf="typeLigneActive === 'BOIS'">
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Volume (m3)</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="volume" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Poids brut (t)</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="poidsBrut" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Poids net (t)</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="poidsNet" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <label class="form-label form-label-sm">Valeur FOB</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="valeurFob" placeholder="0.00" min="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Devise</label>
+                      <select class="form-select form-select-sm" formControlName="devise">
+                        <option *ngFor="let d of devises" [value]="d">{{ d }}</option>
+                      </select>
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="typeLigneActive === 'HYDRO'">
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Densité air 15/4°C</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="densiteAir" placeholder="0.00">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Densité vide 15/4°C</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="densiteVide" placeholder="0.00">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Degré API</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="api" placeholder="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Poids net (t)</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="poidsNet" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Poids brut (t)</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="poidsBrut" placeholder="0" min="0">
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <label class="form-label form-label-sm">Valeur</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="valeurFob" placeholder="0.00" min="0">
+                    </div>
+                    <div class="col-6 col-md-2">
+                      <label class="form-label form-label-sm">Devise</label>
+                      <select class="form-select form-select-sm" formControlName="devise">
+                        <option *ngFor="let d of devises" [value]="d">{{ d }}</option>
+                      </select>
+                    </div>
+                  </ng-container>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                  <button type="button" class="btn btn-sm btn-success" (click)="validerLigne()">
+                    <i class="icofont icofont-check me-1"></i>
+                    {{ indexLigneEdition !== null ? 'Mettre à jour' : 'Ajouter la ligne' }}
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" (click)="annulerFormLigne()">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tableau lignes produits -->
+            <div class="section-bloc mb-4" *ngIf="certificatSelectionne.lignes?.length">
+              <h6 class="bloc-title" *ngIf="!peutModifier(certificatSelectionne)">Lignes de produits</h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered mb-0">
+                  <thead class="table-light">
+                    <tr *ngIf="certificatSelectionne.typeCertificat === '1'">
+                      <th>#</th><th>Produit</th><th>Nature</th>
+                      <th>Volume m3</th><th>Poids brut</th><th>Valeur FOB</th><th>Devise</th>
+                      <th *ngIf="peutModifier(certificatSelectionne)">Actions</th>
+                    </tr>
+                    <tr *ngIf="certificatSelectionne.typeCertificat === '2'">
+                      <th>#</th><th>Produit</th><th>Nature</th>
+                      <th>Densité air</th><th>Densité vide</th><th>API</th>
+                      <th>Poids net</th><th>Poids brut</th>
+                      <th *ngIf="peutModifier(certificatSelectionne)">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let l of certificatSelectionne.lignes; let i = index">
+                      <td>{{ i+1 }}</td>
+                      <td class="text-success fw-semibold">{{ l.produit }}</td>
+                      <td>{{ l.description }}</td>
+                      <ng-container *ngIf="certificatSelectionne.typeCertificat === '1'">
+                        <td>{{ l.volume ?? '—' }}</td>
+                        <td>{{ l.poidsBrut ?? '—' }}</td>
+                        <td>{{ l.valeurFob ?? '—' }}</td>
+                        <td>{{ l.devise }}</td>
+                      </ng-container>
+                      <ng-container *ngIf="certificatSelectionne.typeCertificat === '2'">
+                        <td>{{ l.densiteAir ?? '—' }}</td>
+                        <td>{{ l.densiteVide ?? '—' }}</td>
+                        <td>{{ l.api ?? '—' }}</td>
+                        <td>{{ l.poidsNet ?? '—' }}</td>
+                        <td>{{ l.poidsBrut ?? '—' }}</td>
+                      </ng-container>
+                      <td *ngIf="peutModifier(certificatSelectionne)">
+                        <button class="btn btn-link btn-sm text-primary p-0 me-2" (click)="editerLigne(i)">
+                          <i class="icofont icofont-edit"></i>
+                        </button>
+                        <button class="btn btn-link btn-sm text-danger p-0" (click)="supprimerLigne(i)">
+                          <i class="icofont icofont-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="section-bloc mb-4" *ngIf="!certificatSelectionne.lignes?.length && !peutModifier(certificatSelectionne)">
+              <h6 class="bloc-title">Lignes de produits</h6>
+              <p class="text-muted" style="font-size:0.88rem;">Aucune ligne de produit.</p>
+            </div>
+
+            <!-- ── Documents / Factures ── -->
+            <div class="section-bloc mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="bloc-title mb-0">Factures jointes</h6>
+                <button type="button" class="btn btn-sm btn-outline-success"
+                        *ngIf="peutModifier(certificatSelectionne)"
+                        (click)="ouvrirModalFacture()">
+                  + Ajouter une facture
+                </button>
+              </div>
+
+              <div *ngIf="certificatSelectionne.fichiers?.length; else noFactures">
+                <div class="file-item d-flex align-items-center justify-content-between mb-2"
+                     *ngFor="let fj of certificatSelectionne.fichiers; let i = index">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="icofont icofont-file-pdf text-danger" style="font-size:1.1rem;"></i>
+                    <div>
+                      <div style="font-size:0.88rem; font-weight:500;">
+                        Facture N° {{ fj.numeroFacture }}
+                      </div>
+                      <div class="text-muted" style="font-size:0.75rem;">
+                        {{ fj.nom }} · {{ (fj.taille / 1024) | number:'1.0-0' }} Ko
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-link btn-sm text-danger p-0"
+                          *ngIf="peutModifier(certificatSelectionne)"
+                          (click)="supprimerFichier(i)">&#10005;</button>
+                </div>
+              </div>
+              <ng-template #noFactures>
+                <p class="text-muted" style="font-size:0.88rem;">Aucune facture jointe.</p>
+              </ng-template>
+            </div>
+
+            <div class="d-flex justify-content-start">
+              <button class="btn btn-outline-secondary" (click)="retourListe()">
+                &#8592; Retour à la liste
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne latérale — Approbation -->
+      <div class="col-12 col-lg-4">
+
+        <!-- Panneau statut & actions -->
+        <div class="card mb-3">
+          <div class="card-body">
+            <h6 class="bloc-title">Circuit d'approbation</h6>
+
+            <!-- Timeline statuts -->
+            <div class="statut-timeline">
+              <div class="statut-step" [class.done]="certificatSelectionne.statutId >= 2">
+                <div class="statut-dot"></div>
+                <div class="statut-info">
+                  <div class="statut-step-label">Soumis</div>
+                  <div class="statut-step-sub">Exportateur</div>
+                </div>
+              </div>
+              <div class="statut-step" [class.done]="certificatSelectionne.statutId >= 4">
+                <div class="statut-dot"></div>
+                <div class="statut-info">
+                  <div class="statut-step-label">Contrôlé</div>
+                  <div class="statut-step-sub">Contrôleur CCIAM</div>
+                </div>
+              </div>
+              <div class="statut-step" [class.done]="certificatSelectionne.statutId >= 7">
+                <div class="statut-dot"></div>
+                <div class="statut-info">
+                  <div class="statut-step-label">Approuvé</div>
+                  <div class="statut-step-sub">Superviseur CCIAM</div>
+                </div>
+              </div>
+              <div class="statut-step" [class.done]="certificatSelectionne.statutId >= 8">
+                <div class="statut-dot"></div>
+                <div class="statut-info">
+                  <div class="statut-step-label">Validé définitivement</div>
+                  <div class="statut-step-sub">Président CCIAM</div>
+                </div>
+              </div>
+              <div class="statut-step" *ngIf="certificatSelectionne.isFormuleA"
+                   [class.done]="(certificatSelectionne.statutFormuleA ?? 0) >= 15">
+                <div class="statut-dot statut-dot-fa"></div>
+                <div class="statut-info">
+                  <div class="statut-step-label">Formule A validée</div>
+                  <div class="statut-step-sub">Circuit Formule A</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions disponibles -->
+            <div class="mt-3" *ngIf="actionsDisponibles.length > 0">
+              <div class="mb-2 text-muted" style="font-size:0.8rem;">
+                Actions disponibles pour <strong>{{ roleActif.label }}</strong> :
+              </div>
+              <div class="d-flex flex-column gap-2">
+                <button *ngFor="let action of actionsDisponibles"
+                        class="btn btn-sm w-100"
+                        [ngClass]="action.cssClass"
+                        (click)="ouvrirApprobation(action.statutCible)">
+                  {{ action.label }}
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3 text-muted" style="font-size:0.8rem;"
+                 *ngIf="actionsDisponibles.length === 0">
+              Aucune action disponible pour ce rôle à ce stade.
+            </div>
+
+            <!-- Demande Formule A -->
+            <div class="mt-3" *ngIf="peutDemanderFormuleA(certificatSelectionne)">
+              <hr class="my-2">
+              <button class="btn btn-sm btn-outline-warning w-100"
+                      (click)="demanderFormuleA()">
+                <i class="icofont icofont-copy me-1"></i> Demander Formule A
+              </button>
+            </div>
+
+            <!-- Succès approbation -->
+            <div class="alert alert-success mt-3 py-2" *ngIf="showSuccesApprobation"
+                 style="font-size:0.85rem;">
+              <i class="icofont icofont-check-circled me-1"></i> Action effectuée avec succès.
+            </div>
+          </div>
+        </div>
+
+        <!-- Historique -->
+        <div class="card">
+          <div class="card-body">
+            <h6 class="bloc-title">Historique</h6>
+            <div class="historique-list">
+              <div class="historique-item" *ngFor="let h of certificatSelectionne.historique">
+                <div class="historique-dot"></div>
+                <div class="historique-content">
+                  <div class="historique-action">{{ h.action }}</div>
+                  <div class="historique-meta">{{ h.role }} — {{ h.date }}</div>
+                  <div class="historique-comment" *ngIf="h.commentaire">{{ h.commentaire }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /colonne latérale -->
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- MODAL APPROBATION                                             -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay" *ngIf="afficherModalApprobation" (click)="fermerApprobation()">
+    <div class="modal-card" (click)="$event.stopPropagation()" [formGroup]="formApprobation">
+      <div class="modal-card-header">
+        <h6 class="mb-0">Confirmer l'action</h6>
+        <button type="button" class="btn btn-link p-0 text-secondary"
+                (click)="fermerApprobation()">&#10005;</button>
+      </div>
+      <div class="modal-card-body">
+        <p class="text-muted mb-3" style="font-size:0.88rem;">
+          Vous allez changer le statut vers :
+          <strong class="text-success">{{ actionEnCours !== null ? (STATUTS[actionEnCours]?.label ?? actionEnCours) : '' }}</strong>
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label">Mot de passe <span class="text-danger">*</span></label>
+          <input type="password" class="form-control" formControlName="motDePasse"
+            placeholder="Votre mot de passe..."
+            [class.is-invalid]="formApprobation.get('motDePasse')?.invalid && formApprobation.get('motDePasse')?.touched">
+          <div class="invalid-feedback">Le mot de passe est requis.</div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Commentaire
+            <span class="text-danger" *ngIf="actionEnCours === 5"> (obligatoire pour un rejet)</span>
+          </label>
+          <textarea class="form-control" rows="3" formControlName="commentaire"
+            placeholder="Motif ou observations..."></textarea>
+        </div>
+
+        <div class="alert alert-danger py-2" *ngIf="erreurApprobation" style="font-size:0.85rem;">
+          <i class="icofont icofont-warning me-1"></i>{{ erreurApprobation }}
+        </div>
+      </div>
+      <div class="modal-card-footer d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                (click)="fermerApprobation()">Annuler</button>
+        <button type="button" class="btn btn-success btn-sm"
+                [class.btn-danger]="actionEnCours === 5"
+                (click)="confirmerApprobation()">
+          <i class="icofont icofont-check me-1"></i> Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================ -->
+  <!-- MODAL CRÉATION DESTINATAIRE                                  -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay" *ngIf="afficherModalCreateDestinataire"
+       (click)="fermerModalDestinataire()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-card-header">
+        <h6 class="mb-0">Nouveau Destinataire</h6>
+        <button type="button" class="btn btn-link p-0 text-secondary"
+                (click)="fermerModalDestinataire()">&#10005;</button>
+      </div>
+      <div class="modal-card-body" [formGroup]="formDestinataire">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Nom du destinataire <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="nom"
+              placeholder="Nom complet ou raison sociale"
+              [class.is-invalid]="formDestinataire.get('nom')?.invalid && formDestinataire.get('nom')?.touched">
+            <div class="invalid-feedback">Ce champ est obligatoire.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Adresse du destinataire</label>
+            <input type="text" class="form-control" formControlName="adresse"
+              placeholder="Adresse complète">
+          </div>
+
+          <div class="col-12 col-md-6 position-relative">
+            <label class="form-label">Pays de destination <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="paysDestination"
+              placeholder="Saisir le pays..."
+              [class.is-invalid]="formDestinataire.get('paysDestination')?.invalid && formDestinataire.get('paysDestination')?.touched"
+              (input)="onPaysDestinataireInput($any($event.target).value)"
+              (blur)="hideSuggestionsPaysDestinataire()">
+            <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                style="z-index:1100;"
+                *ngIf="showSuggestionsPaysDestinataire">
+              <li class="list-group-item list-group-item-action"
+                  *ngFor="let p of suggestionsPaysDestinataire"
+                  (mousedown)="selectPaysDestinataire(p.country)">
+                <div class="d-flex justify-content-between">
+                  <span>{{ p.country }}</span>
+                  <span class="text-muted small">{{ p.code }}</span>
+                </div>
+              </li>
+            </ul>
+            <div class="invalid-feedback">Ce champ est obligatoire.</div>
+          </div>
+
+          <div class="col-12 col-md-6 position-relative">
+            <label class="form-label">Pays d'origine <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="paysOrigine"
+              placeholder="Pays d'origine des marchandises..."
+              [class.is-invalid]="formDestinataire.get('paysOrigine')?.invalid && formDestinataire.get('paysOrigine')?.touched"
+              (input)="onPaysOrigineDestinataireInput($any($event.target).value)"
+              (blur)="hideSuggestionsPaysOrigineDestinataire()">
+            <ul class="list-group position-absolute w-100 mt-1 shadow autocomplete-list"
+                style="z-index:1100;"
+                *ngIf="showSuggestionsPaysOrigineDestinataire">
+              <li class="list-group-item list-group-item-action"
+                  *ngFor="let p of suggestionsPaysOrigineDestinataire"
+                  (mousedown)="selectPaysOrigineDestinataire(p.country)">
+                <div class="d-flex justify-content-between">
+                  <span>{{ p.country }}</span>
+                  <span class="text-muted small">{{ p.code }}</span>
+                </div>
+              </li>
+            </ul>
+            <div class="invalid-feedback">Ce champ est obligatoire.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Zone de production</label>
+            <select class="form-select" formControlName="zoneCoupe">
+              <option value="">– Sélectionner –</option>
+              <option *ngFor="let z of zonesCoupe" [value]="z">{{ z }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-card-footer d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                (click)="fermerModalDestinataire()">Annuler</button>
+        <button type="button" class="btn btn-success btn-sm"
+                (click)="sauvegarderDestinataire()">
+          <i class="icofont icofont-check me-1"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================ -->
+  <!-- MODAL AJOUT FACTURE                                          -->
+  <!-- ============================================================ -->
+  <div class="modal-overlay" *ngIf="afficherModalFacture"
+       (click)="fermerModalFacture()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-card-header">
+        <h6 class="mb-0">Ajouter une facture</h6>
+        <button type="button" class="btn btn-link p-0 text-secondary"
+                (click)="fermerModalFacture()">&#10005;</button>
+      </div>
+      <div class="modal-card-body" [formGroup]="formFacture">
+        <div class="row g-3">
+
+          <div class="col-12">
+            <label class="form-label">
+              Numéro de la facture <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" formControlName="numeroFacture"
+              placeholder="Ex : FAC-2025-001"
+              [class.is-invalid]="formFacture.get('numeroFacture')?.invalid && formFacture.get('numeroFacture')?.touched">
+            <div class="invalid-feedback">Ce champ est obligatoire.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">
+              Facture en format PDF (maxi 4 Mo) <span class="text-danger">*</span>
+            </label>
+            <input type="file" class="form-control" accept="application/pdf"
+              (change)="onFichierFactureSelectionne($event)">
+            <div class="form-text text-muted">Seuls les fichiers PDF sont acceptés, taille maximale 4 Mo.</div>
+            <div *ngIf="fichierFactureEnAttente" class="mt-2 d-flex align-items-center gap-2"
+                 style="font-size:0.85rem;">
+              <i class="icofont icofont-file-pdf text-danger"></i>
+              <span>{{ fichierFactureEnAttente.name }}</span>
+              <span class="text-muted">({{ (fichierFactureEnAttente.size / 1024) | number:'1.0-0' }} Ko)</span>
+            </div>
+            <div class="alert alert-danger py-2 mt-2" *ngIf="erreurFacture" style="font-size:0.85rem;">
+              <i class="icofont icofont-warning me-1"></i>{{ erreurFacture }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-card-footer d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+                (click)="fermerModalFacture()">Annuler</button>
+        <button type="button" class="btn btn-success btn-sm"
+                (click)="sauvegarderFacture()">
+          <i class="icofont icofont-check me-1"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

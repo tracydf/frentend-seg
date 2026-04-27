@@ -1,14 +1,723 @@
 <div class="container-fluid p-0">
-  <div class="row m-0">
-    <div class="col-12 p-0">
-      <div class="card">
-        <div class="card-header">
-          <h5>Assurances</h5>
+
+  <!-- ============================================================ -->
+  <!-- VUE LISTE                                                    -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'liste'">
+    <div class="card">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0">Liste des Assurances</h2>
+          <button class="btn btn-success" (click)="ouvrirFormulaire()">
+            + Nouvelle Assurance
+          </button>
         </div>
-        <div class="card-body">
-          <p>Page des assurances.</p>
+
+        <!-- Alerte erreur microservice -->
+        <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" *ngIf="erreur">
+          <i class="icofont icofont-warning-alt"></i>
+          {{ erreur }}
         </div>
+
+        <!-- Barre de recherche -->
+        <div class="search-bar mb-4">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            class="form-control search-input"
+            placeholder="Rechercher une assurance..."
+            [(ngModel)]="searchTerm">
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>No Dossier</th>
+                <th>Type</th>
+                <th>Assuré</th>
+                <th>Mode Transport</th>
+                <th>Créé le</th>
+                <th>Modifié le</th>
+                <th>Statut</th>
+                <th>Signature</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Ligne de chargement -->
+              <tr *ngIf="loading">
+                <td colspan="9" class="text-center py-4">
+                  <div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>
+                  Chargement en cours…
+                </td>
+              </tr>
+              <tr *ngFor="let a of assurancesFiltrees()">
+                <td class="fw-semibold text-success">{{a.noPolice || a.numeroCert}}</td>
+                <td class="text-success">{{a.module || a.typeContrat}}</td>
+                <td>{{a.importateurNom}}</td>
+                <td>{{a.nomNavire || a.nomTransporteur}}</td>
+                <td>{{a.dateDebut}}</td>
+                <td>{{a.dateFin}}</td>
+                <td>
+                  <span class="badge-statut" [ngClass]="getStatutClass(a.statut)">
+                    {{a.statut}}
+                  </span>
+                </td>
+                <td>
+                  <div class="signature-circle" [ngClass]="getSignatureClass(0)">
+                    <svg viewBox="0 0 36 36" class="circle-svg">
+                      <circle cx="18" cy="18" r="15.9"
+                              fill="none" stroke="#e8e8e8" stroke-width="3"/>
+                      <circle cx="18" cy="18" r="15.9"
+                              fill="none"
+                              [attr.stroke]="getSignatureColor(0)"
+                              stroke-width="3"
+                              [attr.stroke-dasharray]="getSignatureDash(0)"
+                              stroke-linecap="round"
+                              transform="rotate(-90 18 18)"/>
+                    </svg>
+                    <span class="circle-label">—</span>
+                  </div>
+                </td>
+                <td>
+                  <button class="btn btn-outline-secondary btn-sm" (click)="afficher(a)">
+                    Afficher
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!loading && assurancesFiltrees().length === 0">
+                <td colspan="9" class="text-center text-muted py-4">Aucune assurance trouvée.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
   </div>
+
+
+
+  <!-- ============================================================ -->
+  <!-- VUE DETAIL — vue globale en une seule page                   -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'detail' && assuranceSelectionnee">
+    <div class="card">
+      <div class="card-body">
+
+        <!-- Breadcrumb -->
+        <div class="form-page-header d-flex justify-content-between align-items-center mb-3">
+          <h5 class="form-page-title mb-0">Détail de l'assurance</h5>
+          <nav class="breadcrumb-nav">
+            <span class="breadcrumb-home" (click)="retourListe()">🏠</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-inactive" (click)="retourListe()" style="cursor:pointer">Assurances</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-active">{{assuranceSelectionnee.noPolice || assuranceSelectionnee.numeroCert}}</span>
+          </nav>
+        </div>
+
+        <!-- En-tête identité -->
+        <div class="detail-header mb-4">
+          <div class="detail-header-left">
+            <div class="detail-cert-number">{{assuranceSelectionnee.noPolice || assuranceSelectionnee.numeroCert}}</div>
+            <div class="detail-meta">
+              <span class="badge-statut" [ngClass]="getStatutClass(assuranceSelectionnee.statut)">
+                {{assuranceSelectionnee.statut || 'En cours'}}
+              </span>
+              <span class="detail-meta-sep">·</span>
+              <span class="detail-meta-item"><i class="icofont icofont-papers me-1"></i>{{assuranceSelectionnee.typeContrat || '—'}}</span>
+              <span class="detail-meta-sep">·</span>
+              <span class="detail-meta-item"><i class="icofont icofont-ship me-1"></i>{{assuranceSelectionnee.nomTransporteur || '—'}}</span>
+            </div>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm" (click)="retourListe()">
+            ← Retour à la liste
+          </button>
+        </div>
+
+        <!-- ── SECTION 1 : PARTENAIRE & CONTRAT ───────────────────── -->
+        <div class="detail-section mb-3">
+          <div class="detail-section-title">
+            <i class="icofont icofont-file-text"></i> Partenaire &amp; Contrat
+          </div>
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Assuré (Importateur)</span>
+                <span class="detail-value">{{assuranceSelectionnee.importateurNom || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">NIU</span>
+                <span class="detail-value">{{assuranceSelectionnee.importateurNIU || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Type de contrat</span>
+                <span class="detail-value">{{assuranceSelectionnee.typeContrat || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Module</span>
+                <span class="detail-value">{{assuranceSelectionnee.module || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Date de début</span>
+                <span class="detail-value">{{assuranceSelectionnee.dateDebut | date:'dd/MM/yyyy'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Date de fin</span>
+                <span class="detail-value">{{assuranceSelectionnee.dateFin | date:'dd/MM/yyyy'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Durée</span>
+                <span class="detail-value">{{assuranceSelectionnee.duree || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Garantie</span>
+                <span class="detail-value">{{getGarantieName(assuranceSelectionnee.garantieId) || '—'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 2 : VOYAGE ──────────────────────────────────── -->
+        <div class="detail-section mb-3">
+          <div class="detail-section-title">
+            <i class="icofont icofont-ship"></i> Voyage
+          </div>
+          <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Transporteur</span>
+                <span class="detail-value">{{assuranceSelectionnee.nomTransporteur || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Navire</span>
+                <span class="detail-value">{{assuranceSelectionnee.nomNavire || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Type de navire</span>
+                <span class="detail-value">{{assuranceSelectionnee.typeNavire || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Lieu de séjour</span>
+                <span class="detail-value">{{assuranceSelectionnee.lieuSejour || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Durée de séjour</span>
+                <span class="detail-value">{{assuranceSelectionnee.dureeSejour || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Pays de provenance</span>
+                <span class="detail-value">{{assuranceSelectionnee.paysProvenance || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Pays de destination</span>
+                <span class="detail-value">{{assuranceSelectionnee.paysDestination || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">OCRE</span>
+                <span class="detail-value">{{assuranceSelectionnee.ocre || '—'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SECTION 3 : MARCHANDISE ─────────────────────────────── -->
+        <div class="detail-section mb-3">
+          <div class="detail-section-title">
+            <i class="icofont icofont-box"></i> Marchandise
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Désignation</span>
+                <span class="detail-value">{{assuranceSelectionnee.designation || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Marque</span>
+                <span class="detail-value">{{assuranceSelectionnee.marque || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Nature</span>
+                <span class="detail-value">{{assuranceSelectionnee.nature || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Spécificités</span>
+                <span class="detail-value">{{assuranceSelectionnee.specificites || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Conditionnement</span>
+                <span class="detail-value">{{assuranceSelectionnee.conditionnement || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Masse brute</span>
+                <span class="detail-value">{{assuranceSelectionnee.masseBrute || '—'}} {{assuranceSelectionnee.uniteStatistique || ''}}</span>
+              </div>
+            </div>
+            <div class="col-md-4 col-sm-6">
+              <div class="detail-field">
+                <span class="detail-label">Devise</span>
+                <span class="detail-value">{{assuranceSelectionnee.devise || '—'}}</span>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="detail-field">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{assuranceSelectionnee.description || '—'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton retour bas de page -->
+        <div class="d-flex justify-content-start mt-2">
+          <button type="button" class="btn btn-outline-secondary" (click)="retourListe()">
+            ← Retour à la liste
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- VUE FORMULAIRE – WIZARD                                     -->
+  <!-- ============================================================ -->
+  <div *ngIf="vue === 'formulaire'">
+    <div class="card">
+      <div class="card-body">
+
+        <!-- Breadcrumb -->
+        <div class="form-page-header d-flex justify-content-between align-items-center mb-3">
+          <h5 class="form-page-title mb-0">Création d'une assurance</h5>
+          <nav class="breadcrumb-nav">
+            <span class="breadcrumb-home" (click)="retourListe()">🏠</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-inactive" (click)="retourListe()" style="cursor:pointer">Assurances</span>
+            <span class="breadcrumb-sep"> / </span>
+            <span class="breadcrumb-item-active">Nouvelle Assurance</span>
+          </nav>
+        </div>
+
+        <h2 class="title">Saisie d'une assurance</h2>
+        <p class="subtitle">Remplissez tous les champs obligatoires pour passer à l'étape suivante</p>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <!-- Stepper tabs — pattern add-di exact -->
+          <div class="tabs">
+            <div class="tab" [class.active]="step===1" [class.done]="step>1">
+              <span class="tab-icon"><i class="icofont icofont-file-text"></i></span>
+              <span class="tab-label">TYPE PARTENAIRE</span>
+            </div>
+            <div class="tab" [class.active]="step===2" [class.done]="step>2">
+              <span class="tab-icon"><i class="icofont icofont-ship"></i></span>
+              <span class="tab-label">VOYAGE</span>
+            </div>
+            <div class="tab" [class.active]="step===3" [class.done]="step>3">
+              <span class="tab-icon"><i class="icofont icofont-box"></i></span>
+              <span class="tab-label">MARCHANDISE</span>
+            </div>
+            <div class="tab" [class.active]="step===4" [class.done]="step>4">
+              <span class="tab-icon"><i class="icofont icofont-papers"></i></span>
+              <span class="tab-label">CONTRAT</span>
+            </div>
+            <div class="tab" [class.active]="step===5" [class.done]="step>5">
+              <span class="tab-icon"><i class="icofont icofont-folder"></i></span>
+              <span class="tab-label">PARTENAIRES</span>
+            </div>
+            <div class="tab" [class.active]="step===6">
+              <span class="tab-icon"><i class="icofont icofont-check-circled"></i></span>
+              <span class="tab-label">RÉSUMÉ</span>
+            </div>
+          </div>
+
+          <!-- Barre de progression -->
+          <div class="progress">
+            <div class="bar" [style.width]="progress"></div>
+          </div>
+
+          <!-- ─── Contenu des étapes ────────────────────────── -->
+          <div class="mt-4">
+            <ng-container [ngSwitch]="step">
+
+              <!-- STEP 1 – TYPE PARTENAIRE -->
+              <div *ngSwitchCase="1" formGroupName="typePartenaire">
+                <div class="section-bloc mb-3">
+                  <h6 class="bloc-title">Assuré & Partenaire</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Assuré <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="assure"
+                        [class.is-invalid]="form.get('typePartenaire.assure')?.invalid && form.get('typePartenaire.assure')?.touched">
+                        <option value="">Le nom de l'assuré (Importateur bénéficiaire)</option>
+                        <option *ngFor="let a of assureList" [value]="a.id">{{a.nom}}</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Type de Partenaire <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="typePartenaire"
+                        [class.is-invalid]="form.get('typePartenaire.typePartenaire')?.invalid && form.get('typePartenaire.typePartenaire')?.touched">
+                        <option value="">Choisir le Type de Partenaire</option>
+                        <option value="COMPAGNIE_ASSURANCES">COMPAGNIE D'ASSURANCES</option>
+                        <option value="AGENT_GENERAL">AGENT GÉNÉRAL</option>
+                        <option value="COURTIER_ASSURANCE">COURTIER D'ASSURANCE</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- STEP 2 – VOYAGE -->
+              <div *ngSwitchCase="2" formGroupName="voyage">
+                <div class="section-bloc mb-3">
+                  <h6 class="bloc-title">Informations de voyage</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Mode de transport <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="modeTransport"
+                        [class.is-invalid]="form.get('voyage.modeTransport')?.invalid && form.get('voyage.modeTransport')?.touched">
+                        <option value="">Choisir le mode de transport</option>
+                        <option value="MARITIME">MARITIME</option>
+                        <option value="AERIEN">AÉRIEN</option>
+                        <option value="FLUVIAL">FLUVIAL</option>
+                        <option value="TERRESTRE">TERRESTRE</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Lieu du transit</label>
+                      <input class="form-control" formControlName="lieuTransit" placeholder="Lieu du séjour">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Durée du transit (en jours)</label>
+                      <input class="form-control" formControlName="dureeTransit" placeholder="Durée du séjour">
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Nom du Transporteur <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="nomTransporteur" placeholder="Nom du transporteur"
+                        [class.is-invalid]="form.get('voyage.nomTransporteur')?.invalid && form.get('voyage.nomTransporteur')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- STEP 3 – MARCHANDISE -->
+              <div *ngSwitchCase="3" formGroupName="marchandise">
+                <div class="section-bloc mb-3">
+                  <h6 class="bloc-title">Informations marchandise</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Désignation <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="designation" placeholder="Désignation"
+                        [class.is-invalid]="form.get('marchandise.designation')?.invalid && form.get('marchandise.designation')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Nature <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="nature" placeholder="Nature"
+                        [class.is-invalid]="form.get('marchandise.nature')?.invalid && form.get('marchandise.nature')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Spécificités <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="specificites"
+                        [class.is-invalid]="form.get('marchandise.specificites')?.invalid && form.get('marchandise.specificites')?.touched">
+                        <option value="">Choisir la spécificité</option>
+                        <option value="AUCUNE">Aucune spécification</option>
+                        <option value="FRAGILE">Fragile</option>
+                        <option value="DANGEREUX">Dangereux</option>
+                        <option value="PERISSABLE">Périssable</option>
+                        <option value="SENSIBLE_CHOC">Sensible au choc</option>
+                        <option value="SENSIBLE_EAU">Sensible à l'eau</option>
+                        <option value="SENSIBLE_LUMIERE">Sensible à la lumière</option>
+                        <option value="FLEXIBLE">Flexible</option>
+                        <option value="PONDEREUX">Pondéreux</option>
+                        <option value="VOLUMINEUX">Volumineux</option>
+                        <option value="AUTRES">Autres</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Conditionnement <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="conditionnement" placeholder="Conditionnement"
+                        [class.is-invalid]="form.get('marchandise.conditionnement')?.invalid && form.get('marchandise.conditionnement')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Valeur Devise <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" formControlName="valeurDevise" placeholder="Valeur"
+                        [class.is-invalid]="form.get('marchandise.valeurDevise')?.invalid && form.get('marchandise.valeurDevise')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Devise <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="devise"
+                        [class.is-invalid]="form.get('marchandise.devise')?.invalid && form.get('marchandise.devise')?.touched">
+                        <option value="">Choisir la devise</option>
+                        <option *ngFor="let d of deviseList" [value]="d">{{d}}</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label">Masse en Kg <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" formControlName="masseKg" placeholder="Poids en kg"
+                        [class.is-invalid]="form.get('marchandise.masseKg')?.invalid && form.get('marchandise.masseKg')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Marque <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="marque" placeholder="Marque"
+                        [class.is-invalid]="form.get('marchandise.marque')?.invalid && form.get('marchandise.marque')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Description Conditionnement <span class="text-danger">*</span></label>
+                      <textarea class="form-control" formControlName="descriptionConditionnement"
+                                rows="3" placeholder="Description du conditionnement…"
+                                [class.is-invalid]="form.get('marchandise.descriptionConditionnement')?.invalid && form.get('marchandise.descriptionConditionnement')?.touched"></textarea>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- STEP 4 – CONTRAT -->
+              <div *ngSwitchCase="4" formGroupName="contrat">
+                <div class="section-bloc mb-3">
+                  <h6 class="bloc-title">Informations contrat</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Date de début <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" formControlName="dateDebut"
+                        [class.is-invalid]="form.get('contrat.dateDebut')?.invalid && form.get('contrat.dateDebut')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Date de fin <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" formControlName="dateFin"
+                        [class.is-invalid]="form.get('contrat.dateFin')?.invalid && form.get('contrat.dateFin')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Durée <span class="text-danger">*</span></label>
+                      <input class="form-control" formControlName="duree" placeholder="Durée"
+                        [class.is-invalid]="form.get('contrat.duree')?.invalid && form.get('contrat.duree')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Type Contrat <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="typeContrat"
+                        [class.is-invalid]="form.get('contrat.typeContrat')?.invalid && form.get('contrat.typeContrat')?.touched">
+                        <option value="">Choisir le type de contrat</option>
+                        <option value="ABONNEMENT">ABONNEMENT</option>
+                        <option value="FACULTE">FACULTÉ</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Garanties <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="garantie"
+                        [class.is-invalid]="form.get('contrat.garantie')?.invalid && form.get('contrat.garantie')?.touched">
+                        <option value="">Choisir la garantie</option>
+                        <option value="ACCIDENT_CARACTERISE">Accident caractérisé (0.0020%)</option>
+                        <option value="TOUS_RISQUES">Tous risques (0.0035%)</option>
+                        <option value="FAP_SAUF">FAP Sauf (0.0020%)</option>
+                      </select>
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- STEP 5 – PARTENAIRES / DOCUMENTS -->
+              <div *ngSwitchCase="5" formGroupName="partenaires">
+                <div class="section-bloc mb-3">
+                  <h6 class="bloc-title">Documents</h6>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Facture de la marchandise <span class="text-danger">*</span></label>
+                      <input type="file" class="form-control"
+                             (change)="onFileChange($event)"
+                             accept=".pdf,.jpg,.jpeg,.png"
+                             [class.is-invalid]="form.get('partenaires.facture')?.invalid && form.get('partenaires.facture')?.touched">
+                      <div class="invalid-feedback">Veuillez renseigner ce champ.</div>
+                      <small class="text-muted mt-1 d-block" *ngIf="factureFileName">
+                        Fichier sélectionné : <strong>{{factureFileName}}</strong>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- STEP 6 – RÉSUMÉ -->
+              <div *ngSwitchCase="6">
+                <div class="row g-3">
+
+                  <div class="col-12 col-md-6">
+                    <div class="resume-card">
+                      <div class="resume-card-title">
+                        <i class="icofont icofont-file-text me-2"></i>Type Partenaire
+                      </div>
+                      <div class="resume-grid">
+                        <span class="resume-label">Assuré</span>
+                        <span class="resume-value">{{ form.value.typePartenaire?.assure || '—' }}</span>
+                        <span class="resume-label">Type Partenaire</span>
+                        <span class="resume-value">{{ form.value.typePartenaire?.typePartenaire || '—' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="resume-card">
+                      <div class="resume-card-title">
+                        <i class="icofont icofont-ship me-2"></i>Voyage
+                      </div>
+                      <div class="resume-grid">
+                        <span class="resume-label">Mode transport</span>
+                        <span class="resume-value">{{ form.value.voyage?.modeTransport || '—' }}</span>
+                        <span class="resume-label">Lieu transit</span>
+                        <span class="resume-value">{{ form.value.voyage?.lieuTransit || '—' }}</span>
+                        <span class="resume-label">Durée transit</span>
+                        <span class="resume-value">{{ form.value.voyage?.dureeTransit || '—' }} jour(s)</span>
+                        <span class="resume-label">Transporteur</span>
+                        <span class="resume-value">{{ form.value.voyage?.nomTransporteur || '—' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="resume-card">
+                      <div class="resume-card-title">
+                        <i class="icofont icofont-box me-2"></i>Marchandise
+                      </div>
+                      <div class="resume-grid">
+                        <span class="resume-label">Désignation</span>
+                        <span class="resume-value">{{ form.value.marchandise?.designation || '—' }}</span>
+                        <span class="resume-label">Nature</span>
+                        <span class="resume-value">{{ form.value.marchandise?.nature || '—' }}</span>
+                        <span class="resume-label">Valeur</span>
+                        <span class="resume-value">{{ form.value.marchandise?.valeurDevise }} {{ form.value.marchandise?.devise }}</span>
+                        <span class="resume-label">Masse</span>
+                        <span class="resume-value">{{ form.value.marchandise?.masseKg }} Kg</span>
+                        <span class="resume-label">Marque</span>
+                        <span class="resume-value">{{ form.value.marchandise?.marque || '—' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <div class="resume-card">
+                      <div class="resume-card-title">
+                        <i class="icofont icofont-papers me-2"></i>Contrat
+                      </div>
+                      <div class="resume-grid">
+                        <span class="resume-label">Date début</span>
+                        <span class="resume-value">{{ form.value.contrat?.dateDebut || '—' }}</span>
+                        <span class="resume-label">Date fin</span>
+                        <span class="resume-value">{{ form.value.contrat?.dateFin || '—' }}</span>
+                        <span class="resume-label">Durée</span>
+                        <span class="resume-value">{{ form.value.contrat?.duree || '—' }}</span>
+                        <span class="resume-label">Type contrat</span>
+                        <span class="resume-value">{{ form.value.contrat?.typeContrat || '—' }}</span>
+                        <span class="resume-label">Garantie</span>
+                        <span class="resume-value">{{ getGarantieName(form.value.contrat?.garantieId) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="resume-card">
+                      <div class="resume-card-title">
+                        <i class="icofont icofont-folder me-2"></i>Documents
+                      </div>
+                      <div class="resume-grid">
+                        <span class="resume-label">Facture</span>
+                        <span class="resume-value">{{ factureFileName || 'Aucun fichier choisi' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </ng-container>
+          </div>
+
+          <!-- ─── Boutons de navigation ──────────────────────── -->
+          <div class="d-flex justify-content-between mt-4">
+            <ng-container *ngIf="step === 1; else notFirstStep">
+              <button type="button" class="btn btn-outline-secondary" (click)="retourListe()">
+                Annuler
+              </button>
+              <button type="button" class="btn btn-primary" (click)="next()">
+                Enregistrer et continuer
+              </button>
+            </ng-container>
+            <ng-template #notFirstStep>
+              <button type="button" class="btn btn-outline-secondary" (click)="previous()">
+                ← Précédent
+              </button>
+              <ng-container *ngIf="step < 6; else dernierStep">
+                <button type="button" class="btn btn-primary" (click)="next()">
+                  Suivant →
+                </button>
+              </ng-container>
+              <ng-template #dernierStep>
+                <button type="submit" class="btn btn-success">
+                  ✓ Enregistrer l'assurance
+                </button>
+              </ng-template>
+            </ng-template>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+
 </div>
